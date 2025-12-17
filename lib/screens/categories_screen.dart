@@ -140,8 +140,48 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
     }
 
     if (_error != null && _categories.isEmpty) {
-      return Center(
-        child: Text(_error!, style: const TextStyle(color: Colors.white)),
+      return Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              AppTheme.splashBackgroundTop,
+              AppTheme.splashBackgroundBottom,
+            ],
+          ),
+        ),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.wifi_off, size: 48, color: AppTheme.splashArc),
+              const SizedBox(height: 12),
+              Text(
+                'Sin conexión',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: AppTheme.splashText,
+                ),
+              ),
+              const SizedBox(height: 18),
+              ElevatedButton.icon(
+                onPressed: _fetchCategories,
+                icon: const Icon(Icons.refresh),
+                label: const Text('Reintentar'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppTheme.navSelected,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  elevation: 2,
+                ),
+              ),
+            ],
+          ),
+        ),
       );
     }
 
