@@ -19,6 +19,10 @@ class HomeScreen extends ConsumerStatefulWidget {
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
+  Timer? _debounce;
+  String? _lastSearch;
+  int _selectedIndex = 0;
+
   @override
   void initState() {
     super.initState();
@@ -29,20 +33,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     await FavoritesCacheService.init();
   }
 
-  Timer? _debounce;
-  String? _lastSearch;
-  int _selectedIndex = 0;
-
   @override
   void dispose() {
     _debounce?.cancel();
     super.dispose();
   }
 
-  // ================= HOME TAB =================
+  // ================= HOME TAB (CON EL DISEÑO DEL ANTIGUO) =================
   Widget _buildHomeTab() {
     final postsAsync = ref.watch(postsProvider(_lastSearch ?? ''));
     final bookmarkedIds = ref.watch(bookmarksProvider);
+
     postsAsync.whenData((posts) {
       final bookmarkedPosts = posts
           .where((post) => bookmarkedIds.contains(post.id))
@@ -107,7 +108,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 fit: BoxFit.cover,
               ),
             ),
-            const SizedBox(height: 22),
 
             // LISTA DE NOTICIAS
             postsAsync.when(
@@ -134,7 +134,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   itemCount: posts.length,
                   itemBuilder: (context, index) {
                     final post = posts[index];
-
                     return TweenAnimationBuilder<double>(
                       key: ValueKey(post.id),
                       tween: Tween(begin: 0, end: 1),
@@ -155,7 +154,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               },
               loading: () => const Padding(
                 padding: EdgeInsets.only(top: 32),
-                child: _CustomLoader(),
+                child: _CustomLoader(), // Cargador antiguo con diseño pro
               ),
               error: (_, __) => _buildErrorState(),
             ),
@@ -165,19 +164,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
-  // ================= FAVORITOS TAB =================
-  Widget _buildBookmarksTab() {
-    return const FavoritesScreen();
-  }
+  // ================= OTROS TABS =================
+  Widget _buildBookmarksTab() => const FavoritesScreen();
+  Widget _buildCategoriesTab() => const CategoriesScreen();
 
-  // ================= CATEGORÍAS TAB =================
-  Widget _buildCategoriesTab() {
-    return const CategoriesScreen();
-  }
-
-  // ================= ERROR =================
+  // ================= ERROR STATE =================
   bool _isRetrying = false;
-
   Widget _buildErrorState() {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 40),
@@ -195,6 +187,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ),
           const SizedBox(height: 18),
           ElevatedButton.icon(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppTheme.navSelected,
+            ),
             onPressed: _isRetrying
                 ? null
                 : () async {
@@ -208,8 +203,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     width: 20,
                     height: 20,
                     child: CircularProgressIndicator(
-                      strokeWidth: 2.2,
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      strokeWidth: 2,
+                      color: Colors.white,
                     ),
                   )
                 : const Icon(Icons.refresh),
@@ -220,7 +215,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
-  // ================= BUILD =================
   @override
   Widget build(BuildContext context) {
     final body = switch (_selectedIndex) {
@@ -231,7 +225,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     };
 
     return Scaffold(
+      // Se aplica el gradiente a todo el Scaffold como en el diseño antiguo
       body: Container(
+        width: double.infinity,
+        height: double.infinity,
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
@@ -254,7 +251,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 }
 
-// ================= LOADER =================
+// ================= EL LOADER PRO DEL DISEÑO ANTIGUO =================
 
 class _CustomLoader extends StatefulWidget {
   const _CustomLoader();
@@ -283,11 +280,43 @@ class _CustomLoaderState extends State<_CustomLoader>
       height: 48,
       child: AnimatedBuilder(
         animation: _controller,
-        builder: (_, child) =>
-            Transform.rotate(angle: _controller.value * 6.28318, child: child),
-        child: CircularProgressIndicator(
-          strokeWidth: 4,
-          color: AppTheme.navSelected,
+        builder: (context, child) {
+          return Transform.rotate(
+            angle: _controller.value * 6.28319,
+            child: child,
+          );
+        },
+        child: Container(
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            gradient: SweepGradient(
+              colors: [
+                AppTheme.splashArc,
+                AppTheme.navSelected,
+                AppTheme.splashBackgroundTop,
+                AppTheme.splashArc.withOpacity(0.2),
+                AppTheme.splashArc,
+              ],
+              stops: const [0.0, 0.3, 0.6, 0.85, 1.0],
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: AppTheme.splashArc.withOpacity(0.25),
+                blurRadius: 8,
+                spreadRadius: 1,
+              ),
+            ],
+          ),
+          child: Center(
+            child: Container(
+              width: 22,
+              height: 22,
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                shape: BoxShape.circle,
+              ),
+            ),
+          ),
         ),
       ),
     );
