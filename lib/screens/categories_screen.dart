@@ -96,24 +96,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
 
       final List data = response.data;
 
-      _posts = data.map((json) {
-        return Post.fromJson({
-          'id': json['id'],
-          'title': json['title']?['rendered'] ?? '',
-          'excerpt': json['excerpt']?['rendered'] ?? '',
-          'content': json['content']?['rendered'] ?? '',
-          'link': json['link'] ?? '',
-          'date': json['date'],
-          'featuredImage':
-              json['_embedded']?['wp:featuredmedia'] != null &&
-                  (json['_embedded']['wp:featuredmedia'] as List).isNotEmpty
-              ? json['_embedded']['wp:featuredmedia'][0]['source_url']
-              : null,
-          'categories': (json['categories'] as List?)
-              ?.map((e) => e as int)
-              .toList(),
-        });
-      }).toList();
+      _posts = data.map((json) => Post.fromJson(json)).toList();
 
       final prefs = await SharedPreferences.getInstance();
       final cache = _posts.map((p) => jsonEncode(p.toJson())).toList();
@@ -185,12 +168,9 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                 color: Colors.white,
               ),
             ),
-
             const SizedBox(height: 12),
 
-            // ===============================
             // CHIPS
-            // ===============================
             SizedBox(
               height: 54,
               child: ListView.separated(
@@ -215,13 +195,6 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                       color: selected ? Colors.white : AppTheme.bookmarksTitle,
                       fontWeight: FontWeight.w600,
                     ),
-                    shape: StadiumBorder(
-                      side: BorderSide(
-                        color: selected
-                            ? AppTheme.navSelected
-                            : Colors.transparent,
-                      ),
-                    ),
                   );
                 },
               ),
@@ -229,9 +202,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
 
             const SizedBox(height: 8),
 
-            // ===============================
             // LISTA
-            // ===============================
             Expanded(
               child: AnimatedSwitcher(
                 duration: const Duration(milliseconds: 400),
@@ -257,7 +228,10 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                                 child: child,
                               ),
                             ),
-                            child: PostCard(post: _posts[index]),
+                            child: PostCard(
+                              post: _posts[index],
+                              showImage: true,
+                            ),
                           );
                         },
                       ),
@@ -301,7 +275,7 @@ class _CustomLoaderState extends State<_CustomLoader>
         animation: _controller,
         builder: (context, child) {
           return Transform.rotate(
-            angle: _controller.value * 6.28319, // 2*PI
+            angle: _controller.value * 6.28319,
             child: child,
           );
         },
@@ -316,30 +290,6 @@ class _CustomLoaderState extends State<_CustomLoader>
                 AppTheme.splashArc.withOpacity(0.2),
                 AppTheme.splashArc,
               ],
-              stops: const [0.0, 0.3, 0.6, 0.85, 1.0],
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: AppTheme.splashArc.withOpacity(0.25),
-                blurRadius: 8,
-                spreadRadius: 1,
-              ),
-            ],
-          ),
-          child: Center(
-            child: Container(
-              width: 22,
-              height: 22,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: AppTheme.splashArc.withOpacity(0.10),
-                    blurRadius: 4,
-                  ),
-                ],
-              ),
             ),
           ),
         ),

@@ -20,7 +20,8 @@ class BookmarksNotifier extends StateNotifier<Set<int>> {
 
 class PostCard extends ConsumerWidget {
   final Post post;
-  const PostCard({super.key, required this.post});
+  final bool showImage;
+  const PostCard({super.key, required this.post, this.showImage = true});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -92,35 +93,36 @@ class PostCard extends ConsumerWidget {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                post.featuredImage.isNotEmpty
-                    ? ClipRRect(
-                        borderRadius: BorderRadius.circular(8),
-                        child: Image.network(
-                          post.featuredImage,
+                if (showImage)
+                  post.featuredImage.isNotEmpty
+                      ? ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: Image.network(
+                            post.featuredImage,
+                            width: 64,
+                            height: 64,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) => Icon(
+                              Icons.broken_image,
+                              size: 40,
+                              color: AppTheme.bookmarksSubtitle,
+                            ),
+                          ),
+                        )
+                      : Container(
                           width: 64,
                           height: 64,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) => Icon(
-                            Icons.broken_image,
-                            size: 40,
+                          decoration: BoxDecoration(
+                            color: AppTheme.bookmarksBackground,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Icon(
+                            Icons.image,
+                            size: 36,
                             color: AppTheme.bookmarksSubtitle,
                           ),
                         ),
-                      )
-                    : Container(
-                        width: 64,
-                        height: 64,
-                        decoration: BoxDecoration(
-                          color: AppTheme.bookmarksBackground,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Icon(
-                          Icons.image,
-                          size: 36,
-                          color: AppTheme.bookmarksSubtitle,
-                        ),
-                      ),
-                const SizedBox(width: 16),
+                if (showImage) const SizedBox(width: 16),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
