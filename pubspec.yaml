@@ -43,6 +43,7 @@ dependencies:
   json_annotation: ^4.9.0
   intl: ^0.20.2
   flutter_widget_from_html: ^0.17.1
+  easy_cache_manager: ^0.1.8
   
 
 dev_dependencies:

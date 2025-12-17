@@ -8,6 +8,7 @@ import '../components/news_search_bar.dart';
 import '../components/news_bottom_nav_bar.dart';
 import '../helpers/app_theme.dart';
 import 'favorites_screen.dart';
+import '../services/favorites_cache_service.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -17,6 +18,16 @@ class HomeScreen extends ConsumerStatefulWidget {
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
+  @override
+  void initState() {
+    super.initState();
+    _initFavoritesCache();
+  }
+
+  Future<void> _initFavoritesCache() async {
+    await FavoritesCacheService.init();
+  }
+
   Timer? _debounce;
   String? _lastSearch;
   int _selectedIndex = 0;
@@ -30,6 +41,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   // ================= HOME TAB =================
   Widget _buildHomeTab() {
     final postsAsync = ref.watch(postsProvider(_lastSearch ?? ''));
+    final bookmarkedIds = ref.watch(bookmarksProvider);
+    postsAsync.whenData((posts) {
+      final bookmarkedPosts = posts
+          .where((post) => bookmarkedIds.contains(post.id))
+          .toList();
+      FavoritesCacheService.saveFavorites(bookmarkedPosts);
+    });
 
     return SingleChildScrollView(
       child: Padding(
