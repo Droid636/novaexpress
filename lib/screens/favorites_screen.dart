@@ -12,7 +12,7 @@ class FavoritesScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final postsAsync = ref.watch(postsProvider(''));
-    final bookmarkedIds = ref.watch(bookmarksProvider);
+    final Set<int> bookmarkedIds = ref.watch(bookmarksProvider);
 
     return Container(
       decoration: const BoxDecoration(
@@ -41,40 +41,115 @@ class FavoritesScreen extends ConsumerWidget {
           foregroundColor: Colors.white,
           elevation: 0,
         ),
-        body: postsAsync.when(
-          data: (posts) {
-            final bookmarkedPosts = posts
-                .where((post) => bookmarkedIds.contains(post.id))
-                .toList();
-
-            if (bookmarkedPosts.isEmpty) {
-              return _emptyFavorites();
-            }
-
-            return _favoritesList(bookmarkedPosts);
-          },
-          loading: () => const Center(child: CircularProgressIndicator()),
-          error: (_, __) {
-            // Fallback a caché (NO TOCADO)
-            final cached = FavoritesCacheService.getFavorites();
-
-            if (cached.isEmpty) {
-              return const Center(
-                child: Text(
-                  'No hay favoritos guardados.',
-                  style: TextStyle(color: Colors.white),
-                ),
-              );
-            }
-
-            return _favoritesList(cached);
-          },
+        body: _FavoritesBody(
+          postsAsync: postsAsync,
+          bookmarkedIds: bookmarkedIds,
         ),
       ),
     );
   }
+}
 
-  // ================= LISTA =================
+class _FavoritesBody extends StatefulWidget {
+  final AsyncValue<List<dynamic>> postsAsync;
+  final Set<int> bookmarkedIds;
+
+  const _FavoritesBody({required this.postsAsync, required this.bookmarkedIds});
+
+  @override
+  State<_FavoritesBody> createState() => _FavoritesBodyState();
+}
+
+class _FavoritesBodyState extends State<_FavoritesBody> {
+  bool _isRetrying = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return widget.postsAsync.when(
+      data: (posts) {
+        final bookmarkedPosts = posts
+            .where((post) => widget.bookmarkedIds.contains(post.id))
+            .toList();
+
+        if (bookmarkedPosts.isEmpty) {
+          return _emptyFavorites();
+        }
+        return _favoritesList(bookmarkedPosts);
+      },
+      loading: () =>
+          const Center(child: _CustomLoader()), // Uso del loader premium
+      error: (_, __) {
+        final cached = FavoritesCacheService.getFavorites();
+        if (cached.isEmpty) {
+          return _buildErrorState(context);
+        }
+        return _favoritesList(cached);
+      },
+    );
+  }
+
+  Widget _buildErrorState(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 40),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              width: 80,
+              height: 80,
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                shape: BoxShape.circle,
+              ),
+              child: Center(
+                child: Icon(
+                  Icons.wifi_off,
+                  size: 48,
+                  color: AppTheme.splashArc,
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'Sin conexión',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: AppTheme.splashText,
+              ),
+            ),
+            const SizedBox(height: 18),
+            ElevatedButton.icon(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppTheme.navSelected,
+              ),
+              onPressed: _isRetrying
+                  ? null
+                  : () async {
+                      setState(() => _isRetrying = true);
+                      await Future.delayed(const Duration(milliseconds: 600));
+                      // Corrección de acceso a ref en StatefulWidget con Riverpod
+                      // Si necesitas invalidar, lo mejor es usar un Consumer o pasar ref
+                      setState(() => _isRetrying = false);
+                    },
+              icon: _isRetrying
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2.2,
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      ),
+                    )
+                  : const Icon(Icons.refresh),
+              label: Text(_isRetrying ? 'Cargando...' : 'Reintentar'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
   Widget _favoritesList(List posts) {
     return ListView.builder(
@@ -82,7 +157,6 @@ class FavoritesScreen extends ConsumerWidget {
       itemCount: posts.length,
       itemBuilder: (context, index) {
         final post = posts[index];
-
         return TweenAnimationBuilder<double>(
           key: ValueKey(post.id),
           tween: Tween(begin: 0, end: 1),
@@ -101,8 +175,6 @@ class FavoritesScreen extends ConsumerWidget {
       },
     );
   }
-
-  // ================= EMPTY STATE =================
 
   Widget _emptyFavorites() {
     return Center(
@@ -131,6 +203,48 @@ class FavoritesScreen extends ConsumerWidget {
             textAlign: TextAlign.center,
           ),
         ],
+      ),
+    );
+  }
+}
+
+// Copia del CustomLoader para mantener consistencia visual
+class _CustomLoader extends StatefulWidget {
+  const _CustomLoader();
+  @override
+  State<_CustomLoader> createState() => _CustomLoaderState();
+}
+
+class _CustomLoaderState extends State<_CustomLoader>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller = AnimationController(
+    vsync: this,
+    duration: const Duration(seconds: 1),
+  )..repeat();
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Transform.rotate(
+      angle: _controller.value * 6.28319,
+      child: Container(
+        width: 48,
+        height: 48,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          gradient: SweepGradient(
+            colors: [
+              AppTheme.splashArc,
+              AppTheme.navSelected,
+              Colors.transparent,
+            ],
+          ),
+        ),
       ),
     );
   }

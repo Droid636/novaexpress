@@ -155,7 +155,21 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.wifi_off, size: 48, color: AppTheme.splashArc),
+              Container(
+                width: 80,
+                height: 80,
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  shape: BoxShape.circle,
+                ),
+                child: Center(
+                  child: Icon(
+                    Icons.wifi_off,
+                    size: 48,
+                    color: AppTheme.splashArc,
+                  ),
+                ),
+              ),
               const SizedBox(height: 12),
               Text(
                 'Sin conexión',
