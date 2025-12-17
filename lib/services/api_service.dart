@@ -18,4 +18,8 @@ class ApiService {
     };
     return await _dio.get('$baseUrl/posts', queryParameters: params);
   }
+
+  Future<Response> getCategories() async {
+    return await _dio.get('$baseUrl/categories');
+  }
 }
