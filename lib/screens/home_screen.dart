@@ -170,14 +170,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                             ),
                           ),
                           const SizedBox(height: 8),
-                          Text(
-                            e.toString(),
-                            style: TextStyle(
-                              color: AppTheme.splashSubtitle,
-                              fontSize: 15,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
+                          // No mostramos el mensaje técnico de error
                           const SizedBox(height: 18),
                           SizedBox(
                             width: 140,
@@ -203,6 +196,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                 ref.invalidate(
                                   postsProvider(_lastSearch ?? ''),
                                 );
+                                setState(
+                                  () {},
+                                ); // Fuerza rebuild para volver a intentar
                               },
                             ),
                           ),
