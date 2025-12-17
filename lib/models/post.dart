@@ -17,6 +17,21 @@ class Post with _$Post {
   }) = _Post;
 
   factory Post.fromJson(Map<String, dynamic> json) {
+    // Extraer imagen destacada
+    String featuredImage = '';
+
+    if (json.containsKey('_embedded') &&
+        json['_embedded'] is Map &&
+        json['_embedded']['wp:featuredmedia'] is List &&
+        (json['_embedded']['wp:featuredmedia'] as List).isNotEmpty) {
+      final media = json['_embedded']['wp:featuredmedia'][0];
+      if (media is Map && media['source_url'] is String) {
+        featuredImage = media['source_url'];
+      }
+    } else if (json['jetpack_featured_media_url'] is String) {
+      featuredImage = json['jetpack_featured_media_url'];
+    }
+
     return Post(
       id: json['id'] as int,
       title:
@@ -31,7 +46,7 @@ class Post with _$Post {
       excerpt: json['excerpt'] is Map
           ? (json['excerpt']['rendered'] ?? '')
           : (json['excerpt'] ?? ''),
-      featuredImage: json['jetpack_featured_media_url'] as String? ?? '',
+      featuredImage: featuredImage,
       categories:
           (json['categories'] as List<dynamic>?)
               ?.map((e) => e as int)

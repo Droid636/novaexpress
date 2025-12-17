@@ -13,6 +13,7 @@ class ApiService {
     final params = <String, dynamic>{
       'page': page,
       'per_page': perPage,
+      '_embed': 1,
       if (search != null) 'search': search,
       if (category != null) 'categories': category,
     };
