@@ -4,7 +4,12 @@ class ApiService {
   final Dio _dio = Dio();
   final String baseUrl = 'https://news.freepi.io/wp-json/wp/v2';
 
-  Future<Response> getPosts({int page = 1, int perPage = 10, String? search, int? category}) async {
+  Future<Response> getPosts({
+    int page = 1,
+    int perPage = 10,
+    String? search,
+    int? category,
+  }) async {
     final params = <String, dynamic>{
       'page': page,
       'per_page': perPage,
