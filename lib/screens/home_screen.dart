@@ -176,6 +176,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   // ================= ERROR =================
+  bool _isRetrying = false;
+
   Widget _buildErrorState() {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 40),
@@ -193,11 +195,25 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ),
           const SizedBox(height: 18),
           ElevatedButton.icon(
-            onPressed: () {
-              ref.invalidate(postsProvider(_lastSearch ?? ''));
-            },
-            icon: const Icon(Icons.refresh),
-            label: const Text('Reintentar'),
+            onPressed: _isRetrying
+                ? null
+                : () async {
+                    setState(() => _isRetrying = true);
+                    await Future.delayed(const Duration(milliseconds: 600));
+                    ref.invalidate(postsProvider(_lastSearch ?? ''));
+                    setState(() => _isRetrying = false);
+                  },
+            icon: _isRetrying
+                ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2.2,
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    ),
+                  )
+                : const Icon(Icons.refresh),
+            label: Text(_isRetrying ? 'Cargando...' : 'Reintentar'),
           ),
         ],
       ),
