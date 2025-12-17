@@ -101,7 +101,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       alignment: Alignment.center,
                       child: Text(
                         _lastSearch != null && _lastSearch!.isNotEmpty
-                            ? 'No se encontraron noticias para \"$_lastSearch\".'
+                            ? 'No se encontraron noticias para "${_lastSearch}".'
                             : 'No hay noticias disponibles.',
                         style: TextStyle(
                           fontSize: 17,
