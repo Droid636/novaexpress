@@ -138,17 +138,76 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 ),
                 error: (e, _) => Column(
                   children: [
-                    Text(
-                      e.toString(),
-                      style: TextStyle(color: AppTheme.navSelected),
-                    ),
-                    const SizedBox(height: 16),
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppTheme.navSelected,
+                    Container(
+                      padding: const EdgeInsets.all(24),
+                      margin: const EdgeInsets.symmetric(vertical: 16),
+                      decoration: BoxDecoration(
+                        color: AppTheme.navBackground.withOpacity(0.92),
+                        borderRadius: BorderRadius.circular(18),
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppTheme.navSelected.withOpacity(0.18),
+                            blurRadius: 16,
+                            offset: const Offset(0, 6),
+                          ),
+                        ],
                       ),
-                      onPressed: () => setState(() {}),
-                      child: const Text('Reintentar'),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.wifi_off,
+                            size: 48,
+                            color: AppTheme.splashArc,
+                          ),
+                          const SizedBox(height: 12),
+                          Text(
+                            'Sin conexión',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: AppTheme.splashText,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            e.toString(),
+                            style: TextStyle(
+                              color: AppTheme.splashSubtitle,
+                              fontSize: 15,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 18),
+                          SizedBox(
+                            width: 140,
+                            height: 44,
+                            child: ElevatedButton.icon(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppTheme.navSelected,
+                                foregroundColor: Colors.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                elevation: 2,
+                              ),
+                              icon: const Icon(Icons.refresh, size: 22),
+                              label: const Text(
+                                'Reintentar',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              onPressed: () {
+                                ref.invalidate(
+                                  postsProvider(_lastSearch ?? ''),
+                                );
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ),
