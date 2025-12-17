@@ -1,11 +1,13 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../helpers/posts_provider.dart';
 import '../components/post_card.dart';
 import '../components/news_search_bar.dart';
 import '../components/news_bottom_nav_bar.dart';
 import '../helpers/app_theme.dart';
+import 'favorites_screen.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -25,200 +27,167 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     super.dispose();
   }
 
-  // ---------------- HOME TAB ----------------
+  // ================= HOME TAB =================
   Widget _buildHomeTab() {
     final postsAsync = ref.watch(postsProvider(_lastSearch ?? ''));
-    return Container(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-            AppTheme.splashBackgroundTop,
-            AppTheme.splashBackgroundBottom,
-          ],
-        ),
-      ),
-      child: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const SizedBox(height: 40),
-              // TÍTULO
-              Text(
-                'NovaExpress',
-                style: TextStyle(
-                  fontSize: 34,
-                  fontWeight: FontWeight.bold,
-                  color: AppTheme.splashText,
-                  letterSpacing: 1.2,
-                ),
+
+    return SingleChildScrollView(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            const SizedBox(height: 40),
+
+            // TÍTULO
+            Text(
+              'NovaExpress',
+              style: TextStyle(
+                fontSize: 34,
+                fontWeight: FontWeight.bold,
+                color: AppTheme.splashText,
+                letterSpacing: 1.2,
               ),
-              const SizedBox(height: 10),
-              // SUBTÍTULO
-              Text(
-                'Noticias relevantes y actuales',
-                style: TextStyle(
-                  fontSize: 16,
-                  color: AppTheme.splashLogoGlow,
-                  fontWeight: FontWeight.w500,
-                ),
+            ),
+            const SizedBox(height: 10),
+
+            // SUBTÍTULO
+            Text(
+              'Noticias relevantes y actuales',
+              style: TextStyle(
+                fontSize: 16,
+                color: AppTheme.splashLogoGlow,
+                fontWeight: FontWeight.w500,
               ),
-              const SizedBox(height: 22),
-              // 🔍 BUSCADOR
-              NewsSearchBar(
-                initialValue: _lastSearch,
-                onSearch: (query) {
-                  setState(() => _lastSearch = query);
-                },
-                onChanged: (query) {
-                  if (_debounce?.isActive ?? false) _debounce!.cancel();
-                  _debounce = Timer(const Duration(milliseconds: 400), () {
-                    setState(() => _lastSearch = query);
-                  });
-                },
+            ),
+            const SizedBox(height: 22),
+
+            // BUSCADOR
+            NewsSearchBar(
+              initialValue: _lastSearch,
+              onSearch: (query) {
+                setState(() => _lastSearch = query);
+              },
+              onChanged: (query) {
+                _debounce?.cancel();
+                _debounce = Timer(
+                  const Duration(milliseconds: 400),
+                  () => setState(() => _lastSearch = query),
+                );
+              },
+            ),
+            const SizedBox(height: 22),
+
+            // IMAGEN HEADER
+            ClipRRect(
+              borderRadius: BorderRadius.circular(18),
+              child: Image.asset(
+                'assets/images/news_header.jpg',
+                height: 170,
+                width: double.infinity,
+                fit: BoxFit.cover,
               ),
-              const SizedBox(height: 22),
-              // 🖼 IMAGEN HEADER
-              ClipRRect(
-                borderRadius: BorderRadius.circular(18),
-                child: Image.asset(
-                  'assets/images/news_header.jpg',
-                  height: 170,
-                  width: double.infinity,
-                  fit: BoxFit.cover,
-                ),
-              ),
-              // 📰 LISTA DE NOTICIAS
-              postsAsync.when(
-                data: (posts) {
-                  if (posts.isEmpty) {
-                    return Container(
-                      width: double.infinity,
-                      height: 220,
-                      alignment: Alignment.center,
-                      child: Text(
-                        _lastSearch != null && _lastSearch!.isNotEmpty
-                            ? 'No se encontraron noticias para "${_lastSearch}".'
-                            : 'No hay noticias disponibles.',
-                        style: TextStyle(
-                          fontSize: 17,
-                          color: AppTheme.navUnselected,
-                        ),
-                        textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 22),
+
+            // LISTA DE NOTICIAS
+            postsAsync.when(
+              data: (posts) {
+                if (posts.isEmpty) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 40),
+                    child: Text(
+                      _lastSearch != null && _lastSearch!.isNotEmpty
+                          ? 'No se encontraron noticias para "$_lastSearch".'
+                          : 'No hay noticias disponibles.',
+                      style: TextStyle(
+                        fontSize: 17,
+                        color: AppTheme.navUnselected,
                       ),
-                    );
-                  }
-                  return ListView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: posts.length,
-                    itemBuilder: (context, index) {
-                      return TweenAnimationBuilder<double>(
-                        key: ValueKey(posts[index].id),
-                        tween: Tween(begin: 0, end: 1),
-                        duration: Duration(milliseconds: 400 + (index * 40)),
-                        builder: (context, value, child) => Opacity(
+                      textAlign: TextAlign.center,
+                    ),
+                  );
+                }
+
+                return ListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: posts.length,
+                  itemBuilder: (context, index) {
+                    final post = posts[index];
+
+                    return TweenAnimationBuilder<double>(
+                      key: ValueKey(post.id),
+                      tween: Tween(begin: 0, end: 1),
+                      duration: Duration(milliseconds: 400 + index * 40),
+                      builder: (context, value, child) {
+                        return Opacity(
                           opacity: value,
                           child: Transform.translate(
                             offset: Offset(0, 20 * (1 - value)),
                             child: child,
                           ),
-                        ),
-                        child: PostCard(post: posts[index]),
-                      );
-                    },
-                  );
-                },
-                loading: () => const Padding(
-                  padding: EdgeInsets.only(top: 32),
-                  child: _CustomLoader(),
-                ),
-                error: (e, _) => Column(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(24),
-                      margin: const EdgeInsets.symmetric(vertical: 16),
-                      decoration: BoxDecoration(
-                        color: AppTheme.navBackground.withOpacity(0.92),
-                        borderRadius: BorderRadius.circular(18),
-                        boxShadow: [
-                          BoxShadow(
-                            color: AppTheme.navSelected.withOpacity(0.18),
-                            blurRadius: 16,
-                            offset: const Offset(0, 6),
-                          ),
-                        ],
-                      ),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            Icons.wifi_off,
-                            size: 48,
-                            color: AppTheme.splashArc,
-                          ),
-                          const SizedBox(height: 12),
-                          Text(
-                            'Sin conexión',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: AppTheme.splashText,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          // No mostramos el mensaje técnico de error
-                          const SizedBox(height: 18),
-                          SizedBox(
-                            width: 140,
-                            height: 44,
-                            child: ElevatedButton.icon(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: AppTheme.navSelected,
-                                foregroundColor: Colors.white,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                elevation: 2,
-                              ),
-                              icon: const Icon(Icons.refresh, size: 22),
-                              label: const Text(
-                                'Reintentar',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                              onPressed: () {
-                                ref.invalidate(
-                                  postsProvider(_lastSearch ?? ''),
-                                );
-                                setState(
-                                  () {},
-                                ); // Fuerza rebuild para volver a intentar
-                              },
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
+                        );
+                      },
+                      child: PostCard(post: post),
+                    );
+                  },
+                );
+              },
+              loading: () => const Padding(
+                padding: EdgeInsets.only(top: 32),
+                child: _CustomLoader(),
               ),
-            ],
-          ),
+              error: (_, __) => _buildErrorState(),
+            ),
+          ],
         ),
       ),
     );
   }
 
-  // ---------------- TABS ----------------
-  Widget _buildBookmarksTab() => const Center(child: Text('Favoritos'));
-  Widget _buildCategoriesTab() => const Center(child: Text('Categorías'));
+  // ================= FAVORITOS TAB =================
+  Widget _buildBookmarksTab() {
+    return const FavoritesScreen();
+  }
 
+  // ================= CATEGORÍAS TAB =================
+  Widget _buildCategoriesTab() {
+    return const Center(
+      child: Text('Categorías', style: TextStyle(fontSize: 20)),
+    );
+  }
+
+  // ================= ERROR =================
+  Widget _buildErrorState() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 40),
+      child: Column(
+        children: [
+          Icon(Icons.wifi_off, size: 48, color: AppTheme.splashArc),
+          const SizedBox(height: 12),
+          Text(
+            'Sin conexión',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: AppTheme.splashText,
+            ),
+          ),
+          const SizedBox(height: 18),
+          ElevatedButton.icon(
+            onPressed: () {
+              ref.invalidate(postsProvider(_lastSearch ?? ''));
+            },
+            icon: const Icon(Icons.refresh),
+            label: const Text('Reintentar'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ================= BUILD =================
   @override
   Widget build(BuildContext context) {
     final body = switch (_selectedIndex) {
@@ -230,8 +199,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
     return Scaffold(
       body: Container(
-        width: double.infinity,
-        height: double.infinity,
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
@@ -254,7 +221,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 }
 
-// ================= LOADER PERSONALIZADO =================
+// ================= LOADER =================
 
 class _CustomLoader extends StatefulWidget {
   const _CustomLoader();
@@ -283,43 +250,11 @@ class _CustomLoaderState extends State<_CustomLoader>
       height: 48,
       child: AnimatedBuilder(
         animation: _controller,
-        builder: (context, child) {
-          return Transform.rotate(
-            angle: _controller.value * 6.28319,
-            child: child,
-          );
-        },
-        child: Container(
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            gradient: SweepGradient(
-              colors: [
-                AppTheme.splashArc,
-                AppTheme.navSelected,
-                AppTheme.splashBackgroundTop,
-                AppTheme.splashArc.withOpacity(0.2),
-                AppTheme.splashArc,
-              ],
-              stops: const [0.0, 0.3, 0.6, 0.85, 1.0],
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: AppTheme.splashArc.withOpacity(0.25),
-                blurRadius: 8,
-                spreadRadius: 1,
-              ),
-            ],
-          ),
-          child: Center(
-            child: Container(
-              width: 22,
-              height: 22,
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                shape: BoxShape.circle,
-              ),
-            ),
-          ),
+        builder: (_, child) =>
+            Transform.rotate(angle: _controller.value * 6.28318, child: child),
+        child: CircularProgressIndicator(
+          strokeWidth: 4,
+          color: AppTheme.navSelected,
         ),
       ),
     );
