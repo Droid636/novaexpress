@@ -8,6 +8,7 @@ import '../components/news_search_bar.dart';
 import '../components/news_bottom_nav_bar.dart';
 import '../helpers/app_theme.dart';
 import 'favorites_screen.dart';
+import 'categories_screen.dart';
 import '../services/favorites_cache_service.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
@@ -171,9 +172,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   // ================= CATEGORÍAS TAB =================
   Widget _buildCategoriesTab() {
-    return const Center(
-      child: Text('Categorías', style: TextStyle(fontSize: 20)),
-    );
+    return const CategoriesScreen();
   }
 
   // ================= ERROR =================
