@@ -14,27 +14,67 @@ class FavoritesScreen extends ConsumerWidget {
     final postsAsync = ref.watch(postsProvider(''));
     final bookmarkedIds = ref.watch(bookmarksProvider);
 
-    return postsAsync.when(
-      data: (posts) {
-        final bookmarkedPosts = posts
-            .where((post) => bookmarkedIds.contains(post.id))
-            .toList();
-        if (bookmarkedPosts.isEmpty) {
-          return _emptyFavorites();
-        }
-        return _favoritesList(bookmarkedPosts);
-      },
-      loading: () => const Center(child: CircularProgressIndicator()),
-      error: (error, _) {
-        // Si hay error, mostrar favoritos guardados en caché
-        final cached = FavoritesCacheService.getFavorites();
-        if (cached.isEmpty) {
-          return const Center(child: Text('No hay favoritos guardados.'));
-        }
-        return _favoritesList(cached);
-      },
+    return Container(
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            AppTheme.splashBackgroundTop,
+            AppTheme.splashBackgroundBottom,
+          ],
+        ),
+      ),
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        appBar: AppBar(
+          centerTitle: true,
+          title: const Text(
+            'Favoritos',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+              fontSize: 32,
+            ),
+          ),
+          backgroundColor: Colors.transparent,
+          foregroundColor: Colors.white,
+          elevation: 0,
+        ),
+        body: postsAsync.when(
+          data: (posts) {
+            final bookmarkedPosts = posts
+                .where((post) => bookmarkedIds.contains(post.id))
+                .toList();
+
+            if (bookmarkedPosts.isEmpty) {
+              return _emptyFavorites();
+            }
+
+            return _favoritesList(bookmarkedPosts);
+          },
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (_, __) {
+            // Fallback a caché (NO TOCADO)
+            final cached = FavoritesCacheService.getFavorites();
+
+            if (cached.isEmpty) {
+              return const Center(
+                child: Text(
+                  'No hay favoritos guardados.',
+                  style: TextStyle(color: Colors.white),
+                ),
+              );
+            }
+
+            return _favoritesList(cached);
+          },
+        ),
+      ),
     );
   }
+
+  // ================= LISTA =================
 
   Widget _favoritesList(List posts) {
     return ListView.builder(
@@ -42,6 +82,7 @@ class FavoritesScreen extends ConsumerWidget {
       itemCount: posts.length,
       itemBuilder: (context, index) {
         final post = posts[index];
+
         return TweenAnimationBuilder<double>(
           key: ValueKey(post.id),
           tween: Tween(begin: 0, end: 1),
@@ -61,6 +102,8 @@ class FavoritesScreen extends ConsumerWidget {
     );
   }
 
+  // ================= EMPTY STATE =================
+
   Widget _emptyFavorites() {
     return Center(
       child: Column(
@@ -71,15 +114,20 @@ class FavoritesScreen extends ConsumerWidget {
             size: 64,
             color: AppTheme.bookmarksEmptyIcon,
           ),
-          const SizedBox(height: 18),
-          const Text(
-            'No tienes favoritos aún.',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+          const SizedBox(height: 16),
+          Text(
+            'Aquí aparecerán tus noticias guardadas.',
+            style: TextStyle(
+              color: AppTheme.splashText,
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+            ),
+            textAlign: TextAlign.center,
           ),
           const SizedBox(height: 8),
-          const Text(
-            'Toca el icono de marcador en una noticia para guardarla aquí.',
-            style: TextStyle(fontSize: 14, color: Colors.grey),
+          Text(
+            '¡Guarda tus artículos favoritos para leerlos después!',
+            style: TextStyle(color: AppTheme.splashLogoGlow, fontSize: 15),
             textAlign: TextAlign.center,
           ),
         ],
