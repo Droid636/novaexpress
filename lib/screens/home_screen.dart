@@ -189,6 +189,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ElevatedButton.icon(
             style: ElevatedButton.styleFrom(
               backgroundColor: AppTheme.navSelected,
+              foregroundColor: Colors.white, // Fuerza el texto blanco
+              textStyle: const TextStyle(color: Colors.white),
             ),
             onPressed: _isRetrying
                 ? null
@@ -208,7 +210,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     ),
                   )
                 : const Icon(Icons.refresh),
-            label: Text(_isRetrying ? 'Cargando...' : 'Reintentar'),
+            label: Text(
+              _isRetrying ? 'Cargando...' : 'Reintentar',
+              style: const TextStyle(color: Colors.white),
+            ),
           ),
         ],
       ),
