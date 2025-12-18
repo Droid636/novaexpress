@@ -256,6 +256,8 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
   }
 
   Widget _errorState() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -263,13 +265,11 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
           Container(
             width: 80,
             height: 80,
-            decoration: const BoxDecoration(
-              color: Colors.white,
+            decoration: BoxDecoration(
+              color: isDark ? AppTheme.navBackground : Colors.white,
               shape: BoxShape.circle,
             ),
-            child: Center(
-              child: Icon(Icons.wifi_off, size: 48, color: AppTheme.splashArc),
-            ),
+            child: Icon(Icons.wifi_off, size: 48, color: AppTheme.splashArc),
           ),
           const SizedBox(height: 12),
           Text(
@@ -277,20 +277,28 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
-              color: AppTheme.splashText,
+              color: isDark ? AppTheme.splashText : AppTheme.bookmarksTitle,
             ),
           ),
           const SizedBox(height: 18),
+
+          // ✅ BOTÓN CORREGIDO
           ElevatedButton.icon(
             onPressed: _fetchCategories,
             icon: const Icon(Icons.refresh),
             label: const Text('Reintentar'),
             style: ElevatedButton.styleFrom(
-              backgroundColor: AppTheme.navSelected,
-              foregroundColor: Colors.white,
+              backgroundColor: isDark
+                  ? AppTheme.navSelected
+                  : AppTheme.searchBackground, // crema
+              foregroundColor: isDark
+                  ? Colors.white
+                  : AppTheme.navBackground, // azul oscuro
+              elevation: isDark ? 4 : 2,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(14),
               ),
+              padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 12),
             ),
           ),
         ],
