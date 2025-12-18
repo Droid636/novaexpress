@@ -26,11 +26,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    _initFavoritesCache();
-  }
-
-  Future<void> _initFavoritesCache() async {
-    await FavoritesCacheService.init();
+    FavoritesCacheService.init();
   }
 
   @override
@@ -39,55 +35,46 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     super.dispose();
   }
 
-  // ================= HOME TAB (CON EL DISEÑO DEL ANTIGUO) =================
-  Widget _buildHomeTab() {
+  // ================= HOME TAB =================
+  Widget _buildHomeTab(bool isDark) {
     final postsAsync = ref.watch(postsProvider(_lastSearch ?? ''));
-    final bookmarkedIds = ref.watch(bookmarksProvider);
-
-    postsAsync.whenData((posts) {
-      final bookmarkedPosts = posts
-          .where((post) => bookmarkedIds.contains(post.id))
-          .toList();
-      FavoritesCacheService.saveFavorites(bookmarkedPosts);
-    });
 
     return SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             const SizedBox(height: 40),
 
-            // TÍTULO
+            // ===== TÍTULO =====
             Text(
               'NovaExpress',
               style: TextStyle(
                 fontSize: 34,
                 fontWeight: FontWeight.bold,
-                color: AppTheme.splashText,
                 letterSpacing: 1.2,
+                color: isDark ? AppTheme.splashText : AppTheme.bookmarksTitle,
               ),
             ),
             const SizedBox(height: 10),
 
-            // SUBTÍTULO
+            // ===== SUBTÍTULO =====
             Text(
               'Noticias relevantes y actuales',
               style: TextStyle(
                 fontSize: 16,
-                color: AppTheme.splashLogoGlow,
                 fontWeight: FontWeight.w500,
+                color: isDark
+                    ? AppTheme.splashSubtitle
+                    : AppTheme.navUnselected,
               ),
             ),
             const SizedBox(height: 22),
 
-            // BUSCADOR
+            // ===== BUSCADOR =====
             NewsSearchBar(
               initialValue: _lastSearch,
-              onSearch: (query) {
-                setState(() => _lastSearch = query);
-              },
+              onSearch: (query) => setState(() => _lastSearch = query),
               onChanged: (query) {
                 _debounce?.cancel();
                 _debounce = Timer(
@@ -98,7 +85,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             ),
             const SizedBox(height: 22),
 
-            // IMAGEN HEADER
+            // ===== IMAGEN HEADER =====
             ClipRRect(
               borderRadius: BorderRadius.circular(18),
               child: Image.asset(
@@ -108,8 +95,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 fit: BoxFit.cover,
               ),
             ),
+            const SizedBox(height: 16),
 
-            // LISTA DE NOTICIAS
+            // ===== LISTA DE POSTS =====
             postsAsync.when(
               data: (posts) {
                 if (posts.isEmpty) {
@@ -119,11 +107,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       _lastSearch != null && _lastSearch!.isNotEmpty
                           ? 'No se encontraron noticias para "$_lastSearch".'
                           : 'No hay noticias disponibles.',
-                      style: TextStyle(
-                        fontSize: 17,
-                        color: AppTheme.navUnselected,
-                      ),
                       textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: isDark
+                            ? AppTheme.navUnselected
+                            : AppTheme.bookmarksTitle.withOpacity(0.7),
+                      ),
                     ),
                   );
                 }
@@ -135,10 +125,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   itemBuilder: (context, index) {
                     final post = posts[index];
                     return TweenAnimationBuilder<double>(
-                      key: ValueKey(post.id),
                       tween: Tween(begin: 0, end: 1),
                       duration: Duration(milliseconds: 400 + index * 40),
-                      builder: (context, value, child) {
+                      builder: (_, value, child) {
                         return Opacity(
                           opacity: value,
                           child: Transform.translate(
@@ -154,9 +143,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               },
               loading: () => const Padding(
                 padding: EdgeInsets.only(top: 32),
-                child: _CustomLoader(), // Cargador antiguo con diseño pro
+                child: _CustomLoader(),
               ),
-              error: (_, __) => _buildErrorState(),
+              error: (_, __) => _buildErrorState(isDark),
             ),
           ],
         ),
@@ -164,13 +153,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
-  // ================= OTROS TABS =================
-  Widget _buildBookmarksTab() => const FavoritesScreen();
-  Widget _buildCategoriesTab() => const CategoriesScreen();
-
-  // ================= ERROR STATE =================
-  bool _isRetrying = false;
-  Widget _buildErrorState() {
+  // ================= ERROR =================
+  Widget _buildErrorState(bool isDark) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 40),
       child: Column(
@@ -182,82 +166,71 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
-              color: AppTheme.splashText,
+              color: isDark ? AppTheme.splashText : AppTheme.bookmarksTitle,
             ),
           ),
           const SizedBox(height: 18),
           ElevatedButton.icon(
             style: ElevatedButton.styleFrom(
               backgroundColor: AppTheme.navSelected,
-              foregroundColor: Colors.white, // Fuerza el texto blanco
-              textStyle: const TextStyle(color: Colors.white),
+              foregroundColor: Colors.white,
             ),
-            onPressed: _isRetrying
-                ? null
-                : () async {
-                    setState(() => _isRetrying = true);
-                    await Future.delayed(const Duration(milliseconds: 600));
-                    ref.invalidate(postsProvider(_lastSearch ?? ''));
-                    setState(() => _isRetrying = false);
-                  },
-            icon: _isRetrying
-                ? const SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: Colors.white,
-                    ),
-                  )
-                : const Icon(Icons.refresh),
-            label: Text(
-              _isRetrying ? 'Cargando...' : 'Reintentar',
-              style: const TextStyle(color: Colors.white),
-            ),
+            onPressed: () => ref.invalidate(postsProvider(_lastSearch ?? '')),
+            icon: const Icon(Icons.refresh),
+            label: const Text('Reintentar'),
           ),
         ],
       ),
     );
   }
 
+  // ================= TABS =================
+  Widget _buildBookmarksTab() => const FavoritesScreen();
+  Widget _buildCategoriesTab() => const CategoriesScreen();
+
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     final body = switch (_selectedIndex) {
-      0 => _buildHomeTab(),
+      0 => _buildHomeTab(isDark),
       1 => _buildBookmarksTab(),
       2 => _buildCategoriesTab(),
-      _ => _buildHomeTab(),
+      _ => _buildHomeTab(isDark),
     };
 
     return Scaffold(
-      // Se aplica el gradiente a todo el Scaffold como en el diseño antiguo
       body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              AppTheme.splashBackgroundTop,
-              AppTheme.splashBackgroundBottom,
-            ],
-          ),
+        decoration: BoxDecoration(
+          gradient: isDark
+              ? const LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    AppTheme.splashBackgroundTop,
+                    AppTheme.splashBackgroundBottom,
+                  ],
+                )
+              : const LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    AppTheme.categoryBackground,
+                    AppTheme.categoryBackground,
+                  ],
+                ),
         ),
         child: body,
       ),
       bottomNavigationBar: NewsBottomNavBar(
         currentIndex: _selectedIndex,
-        onTap: (index) {
-          setState(() => _selectedIndex = index);
-        },
+        onTap: (i) => setState(() => _selectedIndex = i),
       ),
     );
   }
 }
 
-// ================= EL LOADER PRO DEL DISEÑO ANTIGUO =================
-
+// ================= LOADER =================
 class _CustomLoader extends StatefulWidget {
   const _CustomLoader();
 
@@ -285,12 +258,8 @@ class _CustomLoaderState extends State<_CustomLoader>
       height: 48,
       child: AnimatedBuilder(
         animation: _controller,
-        builder: (context, child) {
-          return Transform.rotate(
-            angle: _controller.value * 6.28319,
-            child: child,
-          );
-        },
+        builder: (_, child) =>
+            Transform.rotate(angle: _controller.value * 6.28318, child: child),
         child: Container(
           decoration: BoxDecoration(
             shape: BoxShape.circle,
@@ -298,29 +267,14 @@ class _CustomLoaderState extends State<_CustomLoader>
               colors: [
                 AppTheme.splashArc,
                 AppTheme.navSelected,
-                AppTheme.splashBackgroundTop,
+                AppTheme.navBackground,
                 AppTheme.splashArc.withOpacity(0.2),
                 AppTheme.splashArc,
               ],
-              stops: const [0.0, 0.3, 0.6, 0.85, 1.0],
             ),
-            boxShadow: [
-              BoxShadow(
-                color: AppTheme.splashArc.withOpacity(0.25),
-                blurRadius: 8,
-                spreadRadius: 1,
-              ),
-            ],
           ),
-          child: Center(
-            child: Container(
-              width: 22,
-              height: 22,
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                shape: BoxShape.circle,
-              ),
-            ),
+          child: const Center(
+            child: CircleAvatar(radius: 11, backgroundColor: Colors.white),
           ),
         ),
       ),
