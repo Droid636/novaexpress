@@ -9,6 +9,7 @@ class ThemeMenuButton extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final themeMode = ref.watch(themeModeProvider);
+    final notifier = ref.read(themeModeProvider.notifier);
     final isDark = themeMode == ThemeMode.dark;
 
     return IconButton(
@@ -37,11 +38,10 @@ class ThemeMenuButton extends ConsumerWidget {
                         color: isDark ? Colors.white : AppTheme.navBackground,
                       ),
                     ),
-                    onTap: () {
-                      ref.read(themeModeProvider.notifier).state = isDark
-                          ? ThemeMode.light
-                          : ThemeMode.dark;
-
+                    onTap: () async {
+                      await notifier.setTheme(
+                        isDark ? ThemeMode.light : ThemeMode.dark,
+                      );
                       Navigator.pop(context);
                     },
                   ),
