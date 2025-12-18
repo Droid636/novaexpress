@@ -11,39 +11,41 @@ class FavoritesScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     final postsAsync = ref.watch(postsProvider(''));
     final Set<int> bookmarkedIds = ref.watch(bookmarksProvider);
 
     return Container(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
-          colors: [
-            AppTheme.splashBackgroundTop,
-            AppTheme.splashBackgroundBottom,
-          ],
+          colors: isDark
+              ? [AppTheme.splashBackgroundTop, AppTheme.splashBackgroundBottom]
+              : [AppTheme.categoryBackground, AppTheme.categoryBackground],
         ),
       ),
       child: Scaffold(
         backgroundColor: Colors.transparent,
         appBar: AppBar(
           centerTitle: true,
-          title: const Text(
+          title: Text(
             'Favoritos',
             style: TextStyle(
               fontWeight: FontWeight.bold,
-              color: Colors.white,
+              color: isDark ? Colors.white : AppTheme.navBackground,
               fontSize: 32,
             ),
           ),
           backgroundColor: Colors.transparent,
-          foregroundColor: Colors.white,
+          foregroundColor: isDark ? Colors.white : AppTheme.navBackground,
           elevation: 0,
         ),
         body: _FavoritesBody(
           postsAsync: postsAsync,
           bookmarkedIds: bookmarkedIds,
+          isDark: isDark,
         ),
       ),
     );
@@ -53,8 +55,13 @@ class FavoritesScreen extends ConsumerWidget {
 class _FavoritesBody extends StatefulWidget {
   final AsyncValue<List<dynamic>> postsAsync;
   final Set<int> bookmarkedIds;
+  final bool isDark;
 
-  const _FavoritesBody({required this.postsAsync, required this.bookmarkedIds});
+  const _FavoritesBody({
+    required this.postsAsync,
+    required this.bookmarkedIds,
+    required this.isDark,
+  });
 
   @override
   State<_FavoritesBody> createState() => _FavoritesBodyState();
@@ -76,8 +83,7 @@ class _FavoritesBodyState extends State<_FavoritesBody> {
         }
         return _favoritesList(bookmarkedPosts);
       },
-      loading: () =>
-          const Center(child: _CustomLoader()), // Uso del loader premium
+      loading: () => const Center(child: _CustomLoader()),
       error: (_, __) {
         final cached = FavoritesCacheService.getFavorites();
         if (cached.isEmpty) {
@@ -98,8 +104,8 @@ class _FavoritesBodyState extends State<_FavoritesBody> {
             Container(
               width: 80,
               height: 80,
-              decoration: const BoxDecoration(
-                color: Colors.white,
+              decoration: BoxDecoration(
+                color: widget.isDark ? Colors.white12 : Colors.white,
                 shape: BoxShape.circle,
               ),
               child: Center(
@@ -116,7 +122,7 @@ class _FavoritesBodyState extends State<_FavoritesBody> {
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
-                color: AppTheme.splashText,
+                color: widget.isDark ? Colors.white : AppTheme.navBackground,
               ),
             ),
             const SizedBox(height: 18),
@@ -129,8 +135,6 @@ class _FavoritesBodyState extends State<_FavoritesBody> {
                   : () async {
                       setState(() => _isRetrying = true);
                       await Future.delayed(const Duration(milliseconds: 600));
-                      // Corrección de acceso a ref en StatefulWidget con Riverpod
-                      // Si necesitas invalidar, lo mejor es usar un Consumer o pasar ref
                       setState(() => _isRetrying = false);
                     },
               icon: _isRetrying
@@ -184,13 +188,15 @@ class _FavoritesBodyState extends State<_FavoritesBody> {
           Icon(
             Icons.bookmark_border,
             size: 64,
-            color: AppTheme.bookmarksEmptyIcon,
+            color: widget.isDark
+                ? AppTheme.splashSubtitle
+                : AppTheme.bookmarksEmptyIcon,
           ),
           const SizedBox(height: 16),
           Text(
             'Aquí aparecerán tus noticias guardadas.',
             style: TextStyle(
-              color: AppTheme.splashText,
+              color: widget.isDark ? Colors.white : AppTheme.navBackground,
               fontSize: 18,
               fontWeight: FontWeight.w600,
             ),
@@ -199,7 +205,12 @@ class _FavoritesBodyState extends State<_FavoritesBody> {
           const SizedBox(height: 8),
           Text(
             '¡Guarda tus artículos favoritos para leerlos después!',
-            style: TextStyle(color: AppTheme.splashLogoGlow, fontSize: 15),
+            style: TextStyle(
+              color: widget.isDark
+                  ? AppTheme.splashSubtitle
+                  : AppTheme.splashLogoGlow,
+              fontSize: 15,
+            ),
             textAlign: TextAlign.center,
           ),
         ],
@@ -208,9 +219,12 @@ class _FavoritesBodyState extends State<_FavoritesBody> {
   }
 }
 
-// Copia del CustomLoader para mantener consistencia visual
+// ===============================
+// Loader adaptado a tema
+// ===============================
 class _CustomLoader extends StatefulWidget {
   const _CustomLoader();
+
   @override
   State<_CustomLoader> createState() => _CustomLoaderState();
 }
@@ -230,6 +244,8 @@ class _CustomLoaderState extends State<_CustomLoader>
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Transform.rotate(
       angle: _controller.value * 6.28319,
       child: Container(
@@ -241,7 +257,7 @@ class _CustomLoaderState extends State<_CustomLoader>
             colors: [
               AppTheme.splashArc,
               AppTheme.navSelected,
-              Colors.transparent,
+              isDark ? Colors.transparent : Colors.white,
             ],
           ),
         ),

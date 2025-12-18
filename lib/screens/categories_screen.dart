@@ -73,7 +73,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
   }
 
   // ===============================
-  // OBTENER POSTS POR CATEGORÍA
+  // OBTENER POSTS
   // ===============================
   Future<void> _fetchPosts(int categoryId) async {
     setState(() {
@@ -95,12 +95,13 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
       );
 
       final List data = response.data;
-
       _posts = data.map((json) => Post.fromJson(json)).toList();
 
       final prefs = await SharedPreferences.getInstance();
-      final cache = _posts.map((p) => jsonEncode(p.toJson())).toList();
-      await prefs.setStringList(cacheKey, cache);
+      await prefs.setStringList(
+        cacheKey,
+        _posts.map((p) => jsonEncode(p.toJson())).toList(),
+      );
     } catch (_) {
       final prefs = await SharedPreferences.getInstance();
       final cached = prefs.getStringList(cacheKey) ?? [];
@@ -113,9 +114,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
       }
     }
 
-    setState(() {
-      _loadingPosts = false;
-    });
+    setState(() => _loadingPosts = false);
   }
 
   // ===============================
@@ -123,108 +122,33 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
   // ===============================
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     if (_loadingCategories) {
-      return Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              AppTheme.splashBackgroundTop,
-              AppTheme.splashBackgroundBottom,
-            ],
-          ),
-        ),
-        child: const Center(child: _CustomLoader()),
-      );
+      return _screenBackground(isDark, const Center(child: _CustomLoader()));
     }
 
     if (_error != null && _categories.isEmpty) {
-      return Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              AppTheme.splashBackgroundTop,
-              AppTheme.splashBackgroundBottom,
-            ],
-          ),
-        ),
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                width: 80,
-                height: 80,
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                  shape: BoxShape.circle,
-                ),
-                child: Center(
-                  child: Icon(
-                    Icons.wifi_off,
-                    size: 48,
-                    color: AppTheme.splashArc,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 12),
-              Text(
-                'Sin conexión',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: AppTheme.splashText,
-                ),
-              ),
-              const SizedBox(height: 18),
-              ElevatedButton.icon(
-                onPressed: _fetchCategories,
-                icon: const Icon(Icons.refresh),
-                label: const Text('Reintentar'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.navSelected,
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  elevation: 2,
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
+      return _screenBackground(isDark, _errorState());
     }
 
-    return Container(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-            AppTheme.splashBackgroundTop,
-            AppTheme.splashBackgroundBottom,
-          ],
-        ),
-      ),
-      child: SafeArea(
+    return _screenBackground(
+      isDark,
+      SafeArea(
         child: Column(
           children: [
             const SizedBox(height: 12),
-            const Text(
+            Text(
               'Categorías',
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
-                color: Colors.white,
+                color: isDark ? Colors.white : AppTheme.bookmarksTitle,
               ),
             ),
             const SizedBox(height: 12),
 
-            // CHIPS
+            // ================= CHIPS =================
             SizedBox(
               height: 54,
               child: ListView.separated(
@@ -244,9 +168,15 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                       _fetchPosts(cat.id);
                     },
                     selectedColor: AppTheme.navSelected,
-                    backgroundColor: Colors.white,
+                    backgroundColor: isDark
+                        ? AppTheme.navBackground
+                        : Colors.white,
                     labelStyle: TextStyle(
-                      color: selected ? Colors.white : AppTheme.bookmarksTitle,
+                      color: selected
+                          ? Colors.white
+                          : isDark
+                          ? Colors.white70
+                          : AppTheme.bookmarksTitle,
                       fontWeight: FontWeight.w600,
                     ),
                   );
@@ -256,7 +186,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
 
             const SizedBox(height: 8),
 
-            // LISTA
+            // ================= LISTA =================
             Expanded(
               child: AnimatedSwitcher(
                 duration: const Duration(milliseconds: 400),
@@ -266,7 +196,11 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                     ? Center(
                         child: Text(
                           _error ?? 'No hay noticias.',
-                          style: TextStyle(color: AppTheme.navUnselected),
+                          style: TextStyle(
+                            color: isDark
+                                ? Colors.white70
+                                : AppTheme.navUnselected,
+                          ),
                         ),
                       )
                     : ListView.builder(
@@ -275,13 +209,15 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                           return TweenAnimationBuilder<double>(
                             tween: Tween(begin: 0, end: 1),
                             duration: Duration(milliseconds: 400 + index * 40),
-                            builder: (context, value, child) => Opacity(
-                              opacity: value,
-                              child: Transform.translate(
-                                offset: Offset(0, 20 * (1 - value)),
-                                child: child,
-                              ),
-                            ),
+                            builder: (context, value, child) {
+                              return Opacity(
+                                opacity: value,
+                                child: Transform.translate(
+                                  offset: Offset(0, 20 * (1 - value)),
+                                  child: child,
+                                ),
+                              );
+                            },
                             child: PostCard(
                               post: _posts[index],
                               showImage: true,
@@ -296,9 +232,74 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
       ),
     );
   }
+
+  // ===============================
+  // HELPERS
+  // ===============================
+  Widget _screenBackground(bool isDark, Widget child) {
+    return Container(
+      decoration: BoxDecoration(
+        color: isDark ? null : AppTheme.categoryBackground,
+        gradient: isDark
+            ? const LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  AppTheme.splashBackgroundTop,
+                  AppTheme.splashBackgroundBottom,
+                ],
+              )
+            : null,
+      ),
+      child: child,
+    );
+  }
+
+  Widget _errorState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            width: 80,
+            height: 80,
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              shape: BoxShape.circle,
+            ),
+            child: Center(
+              child: Icon(Icons.wifi_off, size: 48, color: AppTheme.splashArc),
+            ),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            'Sin conexión',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: AppTheme.splashText,
+            ),
+          ),
+          const SizedBox(height: 18),
+          ElevatedButton.icon(
+            onPressed: _fetchCategories,
+            icon: const Icon(Icons.refresh),
+            label: const Text('Reintentar'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppTheme.navSelected,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
-// ================= LOADER =================
+// ================= LOADER (NO TOCADO) =================
 
 class _CustomLoader extends StatefulWidget {
   const _CustomLoader();
