@@ -5,6 +5,7 @@ class NewsSearchBar extends StatelessWidget {
   final ValueChanged<String> onSearch;
   final ValueChanged<String>? onChanged;
   final String? initialValue;
+
   const NewsSearchBar({
     super.key,
     required this.onSearch,
@@ -15,13 +16,23 @@ class NewsSearchBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = TextEditingController(text: initialValue);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Padding(
       padding: const EdgeInsets.all(12.0),
       child: Container(
         decoration: BoxDecoration(
-          color: AppTheme.searchBackground,
+          color: isDark
+              ? AppTheme
+                    .navBackground // ✅ fondo oscuro real
+              : Colors.white,
           borderRadius: BorderRadius.circular(30),
-          border: Border.all(color: AppTheme.searchBorder, width: 1.5),
+          border: Border.all(
+            color: isDark
+                ? AppTheme.navUnselected.withOpacity(0.4)
+                : Colors.grey.shade300,
+            width: 1.5,
+          ),
         ),
         child: Row(
           children: [
@@ -30,16 +41,25 @@ class NewsSearchBar extends StatelessWidget {
                 controller: controller,
                 decoration: InputDecoration(
                   hintText: 'Buscar noticias...',
-                  hintStyle: TextStyle(color: AppTheme.searchHint),
+                  hintStyle: TextStyle(
+                    color: isDark
+                        ? AppTheme.navUnselected
+                        : Colors.grey.shade500,
+                  ),
                   border: InputBorder.none,
                   contentPadding: const EdgeInsets.symmetric(horizontal: 20),
                 ),
                 textInputAction: TextInputAction.search,
                 onSubmitted: onSearch,
                 onChanged: onChanged,
-                style: const TextStyle(fontSize: 16),
+                style: TextStyle(
+                  fontSize: 16,
+                  color: isDark ? Colors.white : AppTheme.bookmarksTitle,
+                ),
               ),
             ),
+
+            // BOTÓN SEARCH (SE MANTIENE)
             Container(
               height: 48,
               width: 48,

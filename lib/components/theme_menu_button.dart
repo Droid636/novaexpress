@@ -9,6 +9,7 @@ class ThemeMenuButton extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final themeMode = ref.watch(themeModeProvider);
+    final isDark = themeMode == ThemeMode.dark;
 
     return IconButton(
       icon: const Icon(Icons.more_vert),
@@ -24,35 +25,20 @@ class ThemeMenuButton extends ConsumerWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // Título
-                  Text(
-                    'Apariencia',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: AppTheme.navBackground,
-                    ),
-                  ),
-
-                  const SizedBox(height: 20),
-
-                  // Botón Modo Oscuro
                   ListTile(
                     leading: Icon(
-                      themeMode == ThemeMode.dark
-                          ? Icons.dark_mode
-                          : Icons.light_mode,
+                      isDark ? Icons.dark_mode : Icons.light_mode,
                       color: AppTheme.navSelected,
                     ),
                     title: Text(
-                      themeMode == ThemeMode.dark
-                          ? 'Desactivar modo oscuro'
-                          : 'Activar modo oscuro',
+                      isDark ? 'Desactivar modo oscuro' : 'Activar modo oscuro',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w500,
+                        color: isDark ? Colors.white : AppTheme.navBackground,
+                      ),
                     ),
                     onTap: () {
-                      ref
-                          .read(themeModeProvider.notifier)
-                          .state = themeMode == ThemeMode.dark
+                      ref.read(themeModeProvider.notifier).state = isDark
                           ? ThemeMode.light
                           : ThemeMode.dark;
 
