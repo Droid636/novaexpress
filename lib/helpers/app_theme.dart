@@ -33,27 +33,35 @@ class AppTheme {
   // ⚪ COLORES CLAROS (UI)
   // ===========================
 
-  // Fondos claros generales
-  static const Color categoryBackground = Color(0xFFF3F6FA);
+  // Paleta clara mejorada para menos fatiga visual
+  static const Color categoryBackground = Color(
+    0xFFF6F7F9,
+  ); // fondo general, gris muy suave
   static const Color bookmarksBackground = categoryBackground;
 
   // Search
-  static const Color searchBackground = Color(0xFFF3F6FA);
-  static const Color searchBorder = Color(0xFFD1D9E6);
+  static const Color searchBackground = Color(0xFFF6F7F9); // igual que fondo
+  static const Color searchBorder = Color(0xFFE0E3EB); // gris más suave
   static const Color searchIconBg = navSelected;
   static const Color searchIconColor = Colors.white;
-  static const Color searchHint = navUnselected;
+  static const Color searchHint = Color(0xFFB0B8C1); // gris medio para hint
 
   // Chips de categorías
-  static const Color categoryChipBackground = Colors.white;
-  static const Color categoryChipBorder = Color(0xFFD1D9E6);
-  static const Color categoryChipText = navBackground;
+  static const Color categoryChipBackground = Color(
+    0xFFFDFDFD,
+  ); // casi blanco, pero no puro
+  static const Color categoryChipBorder = Color(0xFFE0E3EB);
+  static const Color categoryChipText = Color(
+    0xFF2C3550,
+  ); // azul grisáceo oscuro
 
   // Bookmarks
-  static const Color bookmarksCard = Colors.white;
-  static const Color bookmarksTitle = navBackground;
-  static const Color bookmarksSubtitle = navSelected;
-  static const Color bookmarksEmptyIcon = Color(0xFF8CA6C6);
+  static const Color bookmarksCard = Color(
+    0xFFFDFDFD,
+  ); // igual que chip background
+  static const Color bookmarksTitle = Color(0xFF2C3550); // azul grisáceo oscuro
+  static const Color bookmarksSubtitle = Color(0xFF3578C6); // azul principal
+  static const Color bookmarksEmptyIcon = Color(0xFFB0B8C1); // gris medio
 
   // ===========================
   // 🎨 THEME DATA
