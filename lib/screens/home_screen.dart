@@ -38,116 +38,119 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   // ================= HOME TAB =================
   Widget _buildHomeTab(bool isDark) {
     final postsAsync = ref.watch(postsProvider(_lastSearch ?? ''));
+    final screenHeight = MediaQuery.of(context).size.height;
 
     return SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
-        child: Column(
-          children: [
-            const SizedBox(height: 40),
+      child: ConstrainedBox(
+        constraints: BoxConstraints(minHeight: screenHeight),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+          child: Column(
+            children: [
+              const SizedBox(height: 40),
 
-            // ===== TÍTULO =====
-            Text(
-              'NovaExpress',
-              style: TextStyle(
-                fontSize: 34,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 1.2,
-                color: isDark ? AppTheme.splashText : AppTheme.bookmarksTitle,
+              // ===== TÍTULO =====
+              Text(
+                'NovaExpress',
+                style: TextStyle(
+                  fontSize: 34,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 1.2,
+                  color: isDark ? AppTheme.splashText : AppTheme.bookmarksTitle,
+                ),
               ),
-            ),
-            const SizedBox(height: 10),
+              const SizedBox(height: 10),
 
-            // ===== SUBTÍTULO =====
-            Text(
-              'Noticias relevantes y actuales',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
-                color: isDark
-                    ? AppTheme.splashSubtitle
-                    : AppTheme.navUnselected,
+              // ===== SUBTÍTULO =====
+              Text(
+                'Noticias relevantes y actuales',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  color: isDark
+                      ? AppTheme.splashSubtitle
+                      : AppTheme.navUnselected,
+                ),
               ),
-            ),
-            const SizedBox(height: 22),
+              const SizedBox(height: 22),
 
-            // ===== BUSCADOR =====
-            NewsSearchBar(
-              initialValue: _lastSearch,
-              onSearch: (query) => setState(() => _lastSearch = query),
-              onChanged: (query) {
-                _debounce?.cancel();
-                _debounce = Timer(
-                  const Duration(milliseconds: 400),
-                  () => setState(() => _lastSearch = query),
-                );
-              },
-            ),
-            const SizedBox(height: 22),
-
-            // ===== IMAGEN HEADER =====
-            ClipRRect(
-              borderRadius: BorderRadius.circular(18),
-              child: Image.asset(
-                'assets/images/news_header.jpg',
-                height: 170,
-                width: double.infinity,
-                fit: BoxFit.cover,
-              ),
-            ),
-            const SizedBox(height: 16),
-
-            // ===== LISTA DE POSTS =====
-            postsAsync.when(
-              data: (posts) {
-                if (posts.isEmpty) {
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 40),
-                    child: Text(
-                      _lastSearch != null && _lastSearch!.isNotEmpty
-                          ? 'No se encontraron noticias para "$_lastSearch".'
-                          : 'No hay noticias disponibles.',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: isDark
-                            ? AppTheme.navUnselected
-                            : AppTheme.bookmarksTitle.withOpacity(0.7),
-                      ),
-                    ),
+              // ===== BUSCADOR =====
+              NewsSearchBar(
+                initialValue: _lastSearch,
+                onSearch: (query) => setState(() => _lastSearch = query),
+                onChanged: (query) {
+                  _debounce?.cancel();
+                  _debounce = Timer(
+                    const Duration(milliseconds: 400),
+                    () => setState(() => _lastSearch = query),
                   );
-                }
-
-                return ListView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: posts.length,
-                  itemBuilder: (context, index) {
-                    final post = posts[index];
-                    return TweenAnimationBuilder<double>(
-                      tween: Tween(begin: 0, end: 1),
-                      duration: Duration(milliseconds: 400 + index * 40),
-                      builder: (_, value, child) {
-                        return Opacity(
-                          opacity: value,
-                          child: Transform.translate(
-                            offset: Offset(0, 20 * (1 - value)),
-                            child: child,
-                          ),
-                        );
-                      },
-                      child: PostCard(post: post),
-                    );
-                  },
-                );
-              },
-              loading: () => const Padding(
-                padding: EdgeInsets.only(top: 32),
-                child: _CustomLoader(),
+                },
               ),
-              error: (_, __) => _buildErrorState(isDark),
-            ),
-          ],
+              const SizedBox(height: 22),
+
+              // ===== IMAGEN HEADER =====
+              ClipRRect(
+                borderRadius: BorderRadius.circular(18),
+                child: Image.asset(
+                  'assets/images/news_header.jpg',
+                  height: 170,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                ),
+              ),
+
+              // ===== LISTA DE POSTS =====
+              postsAsync.when(
+                data: (posts) {
+                  if (posts.isEmpty) {
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 40),
+                      child: Text(
+                        _lastSearch != null && _lastSearch!.isNotEmpty
+                            ? 'No se encontraron noticias para "$_lastSearch".'
+                            : 'No hay noticias disponibles.',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: isDark
+                              ? AppTheme.navUnselected
+                              : AppTheme.bookmarksTitle.withOpacity(0.7),
+                        ),
+                      ),
+                    );
+                  }
+
+                  return ListView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: posts.length,
+                    itemBuilder: (context, index) {
+                      final post = posts[index];
+                      return TweenAnimationBuilder<double>(
+                        tween: Tween(begin: 0, end: 1),
+                        duration: Duration(milliseconds: 400 + index * 40),
+                        builder: (_, value, child) {
+                          return Opacity(
+                            opacity: value,
+                            child: Transform.translate(
+                              offset: Offset(0, 20 * (1 - value)),
+                              child: child,
+                            ),
+                          );
+                        },
+                        child: PostCard(post: post),
+                      );
+                    },
+                  );
+                },
+                loading: () => const Padding(
+                  padding: EdgeInsets.only(top: 32),
+                  child: _CustomLoader(),
+                ),
+                error: (_, __) => _buildErrorState(isDark),
+              ),
+            ],
+          ),
         ),
       ),
     );
