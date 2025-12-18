@@ -62,6 +62,8 @@ class PostCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     final dateStr = DateFormat(
       'dd/MM/yyyy',
     ).format(DateTime.tryParse(post.date) ?? DateTime.now());
@@ -73,17 +75,21 @@ class PostCard extends ConsumerWidget {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.93),
+        color: isDark ? AppTheme.navBackground : Colors.white.withOpacity(0.95),
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.splashBackgroundTop.withOpacity(0.10),
+            color: isDark
+                ? Colors.black.withOpacity(0.35)
+                : AppTheme.splashBackgroundTop.withOpacity(0.10),
             blurRadius: 16,
             offset: const Offset(0, 6),
           ),
         ],
         border: Border.all(
-          color: AppTheme.splashBackgroundBottom.withOpacity(0.10),
+          color: isDark
+              ? Colors.white.withOpacity(0.05)
+              : AppTheme.splashBackgroundBottom.withOpacity(0.10),
           width: 1.1,
         ),
       ),
@@ -97,14 +103,16 @@ class PostCard extends ConsumerWidget {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                if (showImage) _buildImage(),
+                if (showImage) _buildImage(isDark),
                 if (showImage) const SizedBox(width: 16),
-                Expanded(child: _buildInfo(dateStr)),
+                Expanded(child: _buildInfo(dateStr, isDark)),
                 IconButton(
                   icon: Icon(
                     isBookmarked ? Icons.bookmark : Icons.bookmark_border,
                     color: isBookmarked
-                        ? AppTheme.searchIconBg
+                        ? AppTheme.navSelected
+                        : isDark
+                        ? Colors.white54
                         : AppTheme.bookmarksSubtitle.withOpacity(0.4),
                   ),
                   onPressed: () async {
@@ -130,7 +138,8 @@ class PostCard extends ConsumerWidget {
   /// ===============================
   /// UI HELPERS
   /// ===============================
-  Widget _buildImage() {
+
+  Widget _buildImage(bool isDark) {
     if (post.featuredImage.isNotEmpty) {
       return ClipRRect(
         borderRadius: BorderRadius.circular(8),
@@ -142,7 +151,7 @@ class PostCard extends ConsumerWidget {
           errorBuilder: (_, __, ___) => Icon(
             Icons.broken_image,
             size: 40,
-            color: AppTheme.bookmarksSubtitle,
+            color: isDark ? Colors.white54 : AppTheme.bookmarksSubtitle,
           ),
         ),
       );
@@ -152,14 +161,18 @@ class PostCard extends ConsumerWidget {
       width: 64,
       height: 64,
       decoration: BoxDecoration(
-        color: AppTheme.bookmarksBackground,
+        color: isDark ? Colors.white10 : AppTheme.bookmarksBackground,
         borderRadius: BorderRadius.circular(8),
       ),
-      child: Icon(Icons.image, size: 36, color: AppTheme.bookmarksSubtitle),
+      child: Icon(
+        Icons.image,
+        size: 36,
+        color: isDark ? Colors.white54 : AppTheme.bookmarksSubtitle,
+      ),
     );
   }
 
-  Widget _buildInfo(String dateStr) {
+  Widget _buildInfo(String dateStr, bool isDark) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -167,10 +180,10 @@ class PostCard extends ConsumerWidget {
           post.title,
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
-          style: const TextStyle(
+          style: TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 17,
-            color: AppTheme.splashBackgroundTop,
+            color: isDark ? Colors.white : AppTheme.splashBackgroundTop,
             letterSpacing: 0.1,
           ),
         ),
@@ -179,7 +192,9 @@ class PostCard extends ConsumerWidget {
           'Publicado: $dateStr',
           style: TextStyle(
             fontSize: 13,
-            color: AppTheme.navSelected.withOpacity(0.85),
+            color: isDark
+                ? AppTheme.splashSubtitle
+                : AppTheme.navSelected.withOpacity(0.85),
             fontWeight: FontWeight.w500,
           ),
         ),

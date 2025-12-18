@@ -14,15 +14,22 @@ class NewsBottomNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Stack(
       alignment: Alignment.topRight,
       children: [
         BottomNavigationBar(
           currentIndex: currentIndex,
           onTap: onTap,
-          backgroundColor: AppTheme.navBackground,
+
+          // 🎨 Colores según AppTheme
+          backgroundColor: isDark
+              ? AppTheme.navBackground
+              : AppTheme.categoryBackground,
           selectedItemColor: AppTheme.navSelected,
           unselectedItemColor: AppTheme.navUnselected,
+
           items: const [
             BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Inicio'),
             BottomNavigationBarItem(
@@ -37,7 +44,7 @@ class NewsBottomNavBar extends StatelessWidget {
         ),
 
         // 🔘 Botón 3 puntos (modo oscuro)
-        Positioned(right: 4, top: 4, child: ThemeMenuButton()),
+        const Positioned(right: 4, top: 4, child: ThemeMenuButton()),
       ],
     );
   }
