@@ -1,12 +1,13 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart'; // ✅ IMPORT NECESARIO
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../helpers/posts_provider.dart';
 import '../components/post_card.dart';
 import '../components/news_search_bar.dart';
 import '../components/news_bottom_nav_bar.dart';
+import '../components/theme_menu_button.dart'; // ✅ NUEVO
 import '../helpers/app_theme.dart';
 import 'favorites_screen.dart';
 import 'categories_screen.dart';
@@ -50,15 +51,46 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             children: [
               const SizedBox(height: 40),
 
-              Text(
-                'NovaExpress',
-                style: TextStyle(
-                  fontSize: 34,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 1.2,
-                  color: isDark ? AppTheme.splashText : AppTheme.bookmarksTitle,
-                ),
+              // ================= HEADER =================
+              Stack(
+                alignment: Alignment.center,
+                children: [
+                  Center(
+                    child: Text(
+                      'NovaExpress',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 34,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 1.2,
+                        color: isDark
+                            ? AppTheme.splashText
+                            : AppTheme.bookmarksTitle,
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    right: 0,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: isDark
+                            ? AppTheme.navBackground.withOpacity(0.6)
+                            : Colors.white.withOpacity(0.85),
+                        borderRadius: BorderRadius.circular(14),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.08),
+                            blurRadius: 8,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: const ThemeMenuButton(),
+                    ),
+                  ),
+                ],
               ),
+
               const SizedBox(height: 10),
 
               Text(
@@ -202,13 +234,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       value: isDark
           ? SystemUiOverlayStyle.light.copyWith(
               statusBarColor: Colors.transparent,
-              statusBarIconBrightness: Brightness.light, // Android
-              statusBarBrightness: Brightness.dark, // iOS
+              statusBarIconBrightness: Brightness.light,
+              statusBarBrightness: Brightness.dark,
             )
           : SystemUiOverlayStyle.dark.copyWith(
               statusBarColor: Colors.transparent,
-              statusBarIconBrightness: Brightness.dark, // Android
-              statusBarBrightness: Brightness.light, // iOS
+              statusBarIconBrightness: Brightness.dark,
+              statusBarBrightness: Brightness.light,
             ),
       child: Scaffold(
         body: Container(
