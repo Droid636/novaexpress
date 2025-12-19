@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart'; // 👈 AGREGADO
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
@@ -124,111 +125,128 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    if (_loadingCategories) {
-      return _screenBackground(isDark, const Center(child: _CustomLoader()));
-    }
+    // 👇 AGREGADO: control del status bar
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
+        statusBarBrightness: isDark ? Brightness.dark : Brightness.light,
+      ),
+      child: Builder(
+        builder: (_) {
+          if (_loadingCategories) {
+            return _screenBackground(
+              isDark,
+              const Center(child: _CustomLoader()),
+            );
+          }
 
-    if (_error != null && _categories.isEmpty) {
-      return _screenBackground(isDark, _errorState());
-    }
+          if (_error != null && _categories.isEmpty) {
+            return _screenBackground(isDark, _errorState());
+          }
 
-    return _screenBackground(
-      isDark,
-      SafeArea(
-        child: Column(
-          children: [
-            const SizedBox(height: 12),
-            Text(
-              'Categorías',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: isDark ? Colors.white : AppTheme.bookmarksTitle,
-              ),
-            ),
-            const SizedBox(height: 12),
-
-            // ================= CHIPS =================
-            SizedBox(
-              height: 54,
-              child: ListView.separated(
-                scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                itemCount: _categories.length,
-                separatorBuilder: (_, __) => const SizedBox(width: 8),
-                itemBuilder: (context, index) {
-                  final cat = _categories[index];
-                  final selected = cat.id == _selectedCategoryId;
-
-                  return ChoiceChip(
-                    label: Text(cat.name),
-                    selected: selected,
-                    onSelected: (_) {
-                      setState(() => _selectedCategoryId = cat.id);
-                      _fetchPosts(cat.id);
-                    },
-                    selectedColor: AppTheme.navSelected,
-                    backgroundColor: isDark
-                        ? AppTheme.navBackground
-                        : Colors.white,
-                    labelStyle: TextStyle(
-                      color: selected
-                          ? Colors.white
-                          : isDark
-                          ? Colors.white70
-                          : AppTheme.bookmarksTitle,
-                      fontWeight: FontWeight.w600,
+          return _screenBackground(
+            isDark,
+            SafeArea(
+              child: Column(
+                children: [
+                  const SizedBox(height: 12),
+                  Text(
+                    'Categorías',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: isDark ? Colors.white : AppTheme.bookmarksTitle,
                     ),
-                  );
-                },
-              ),
-            ),
+                  ),
+                  const SizedBox(height: 12),
 
-            const SizedBox(height: 8),
+                  // ================= CHIPS =================
+                  SizedBox(
+                    height: 54,
+                    child: ListView.separated(
+                      scrollDirection: Axis.horizontal,
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      itemCount: _categories.length,
+                      separatorBuilder: (_, __) => const SizedBox(width: 8),
+                      itemBuilder: (context, index) {
+                        final cat = _categories[index];
+                        final selected = cat.id == _selectedCategoryId;
 
-            // ================= LISTA =================
-            Expanded(
-              child: AnimatedSwitcher(
-                duration: const Duration(milliseconds: 400),
-                child: _loadingPosts
-                    ? const Center(child: _CustomLoader())
-                    : _posts.isEmpty
-                    ? Center(
-                        child: Text(
-                          _error ?? 'No hay noticias.',
-                          style: TextStyle(
-                            color: isDark
+                        return ChoiceChip(
+                          label: Text(cat.name),
+                          selected: selected,
+                          onSelected: (_) {
+                            setState(() => _selectedCategoryId = cat.id);
+                            _fetchPosts(cat.id);
+                          },
+                          selectedColor: AppTheme.navSelected,
+                          backgroundColor: isDark
+                              ? AppTheme.navBackground
+                              : Colors.white,
+                          labelStyle: TextStyle(
+                            color: selected
+                                ? Colors.white
+                                : isDark
                                 ? Colors.white70
-                                : AppTheme.navUnselected,
+                                : AppTheme.bookmarksTitle,
+                            fontWeight: FontWeight.w600,
                           ),
-                        ),
-                      )
-                    : ListView.builder(
-                        itemCount: _posts.length,
-                        itemBuilder: (context, index) {
-                          return TweenAnimationBuilder<double>(
-                            tween: Tween(begin: 0, end: 1),
-                            duration: Duration(milliseconds: 400 + index * 40),
-                            builder: (context, value, child) {
-                              return Opacity(
-                                opacity: value,
-                                child: Transform.translate(
-                                  offset: Offset(0, 20 * (1 - value)),
-                                  child: child,
+                        );
+                      },
+                    ),
+                  ),
+
+                  const SizedBox(height: 8),
+
+                  // ================= LISTA =================
+                  Expanded(
+                    child: AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 400),
+                      child: _loadingPosts
+                          ? const Center(child: _CustomLoader())
+                          : _posts.isEmpty
+                          ? Center(
+                              child: Text(
+                                _error ?? 'No hay noticias.',
+                                style: TextStyle(
+                                  color: isDark
+                                      ? Colors.white70
+                                      : AppTheme.navUnselected,
                                 ),
-                              );
-                            },
-                            child: PostCard(
-                              post: _posts[index],
-                              showImage: true,
+                              ),
+                            )
+                          : ListView.builder(
+                              itemCount: _posts.length,
+                              itemBuilder: (context, index) {
+                                return TweenAnimationBuilder<double>(
+                                  tween: Tween(begin: 0, end: 1),
+                                  duration: Duration(
+                                    milliseconds: 400 + index * 40,
+                                  ),
+                                  builder: (context, value, child) {
+                                    return Opacity(
+                                      opacity: value,
+                                      child: Transform.translate(
+                                        offset: Offset(0, 20 * (1 - value)),
+                                        child: child,
+                                      ),
+                                    );
+                                  },
+                                  child: PostCard(
+                                    post: _posts[index],
+                                    showImage: true,
+                                  ),
+                                );
+                              },
                             ),
-                          );
-                        },
-                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
@@ -281,8 +299,6 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
             ),
           ),
           const SizedBox(height: 18),
-
-          // ✅ BOTÓN CORREGIDO
           ElevatedButton.icon(
             onPressed: _fetchCategories,
             icon: const Icon(Icons.refresh),
@@ -290,10 +306,8 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
             style: ElevatedButton.styleFrom(
               backgroundColor: isDark
                   ? AppTheme.navSelected
-                  : AppTheme.searchBackground, // crema
-              foregroundColor: isDark
-                  ? Colors.white
-                  : AppTheme.navBackground, // azul oscuro
+                  : AppTheme.searchBackground,
+              foregroundColor: isDark ? Colors.white : AppTheme.navBackground,
               elevation: isDark ? 4 : 2,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(14),

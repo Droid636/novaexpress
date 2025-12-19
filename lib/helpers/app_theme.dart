@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class AppTheme {
   // ===========================
@@ -33,48 +34,65 @@ class AppTheme {
   // ⚪ COLORES CLAROS (UI)
   // ===========================
 
-  // Paleta clara mejorada para menos fatiga visual
-  static const Color categoryBackground = Color(
-    0xFFF6F7F9,
-  ); // fondo general, gris muy suave
+  static const Color categoryBackground = Color(0xFFF6F7F9);
   static const Color bookmarksBackground = categoryBackground;
 
   // Search
-  static const Color searchBackground = Color(0xFFF6F7F9); // igual que fondo
-  static const Color searchBorder = Color(0xFFE0E3EB); // gris más suave
+  static const Color searchBackground = Color(0xFFF6F7F9);
+  static const Color searchBorder = Color(0xFFE0E3EB);
   static const Color searchIconBg = navSelected;
   static const Color searchIconColor = Colors.white;
-  static const Color searchHint = Color(0xFFB0B8C1); // gris medio para hint
+  static const Color searchHint = Color(0xFFB0B8C1);
 
   // Chips de categorías
-  static const Color categoryChipBackground = Color(
-    0xFFFDFDFD,
-  ); // casi blanco, pero no puro
+  static const Color categoryChipBackground = Color(0xFFFDFDFD);
   static const Color categoryChipBorder = Color(0xFFE0E3EB);
-  static const Color categoryChipText = Color(
-    0xFF2C3550,
-  ); // azul grisáceo oscuro
+  static const Color categoryChipText = Color(0xFF2C3550);
 
   // Bookmarks
-  static const Color bookmarksCard = Color(
-    0xFFFDFDFD,
-  ); // igual que chip background
-  static const Color bookmarksTitle = Color(0xFF2C3550); // azul grisáceo oscuro
-  static const Color bookmarksSubtitle = Color(0xFF3578C6); // azul principal
-  static const Color bookmarksEmptyIcon = Color(0xFFB0B8C1); // gris medio
+  static const Color bookmarksCard = Color(0xFFFDFDFD);
+  static const Color bookmarksTitle = Color(0xFF2C3550);
+  static const Color bookmarksSubtitle = navSelected;
+  static const Color bookmarksEmptyIcon = Color(0xFFB0B8C1);
 
   // ===========================
-  // 🎨 THEME DATA
+  // ☀️ LIGHT THEME (SIN CAMBIOS)
   // ===========================
 
   static ThemeData get lightTheme {
     return ThemeData(
+      brightness: Brightness.light,
       scaffoldBackgroundColor: categoryBackground,
       primaryColor: navSelected,
       fontFamily: 'Roboto',
+
+      colorScheme: const ColorScheme.light(primary: navSelected),
+
       appBarTheme: const AppBarTheme(
         backgroundColor: navBackground,
         foregroundColor: Colors.white,
+        systemOverlayStyle: SystemUiOverlayStyle.dark,
+      ),
+    );
+  }
+
+  // ===========================
+  // 🌙 DARK THEME (AGREGADO)
+  // ===========================
+
+  static ThemeData get darkTheme {
+    return ThemeData(
+      brightness: Brightness.dark,
+      scaffoldBackgroundColor: navBackground,
+      primaryColor: navSelected,
+      fontFamily: 'Roboto',
+
+      colorScheme: const ColorScheme.dark(primary: navSelected),
+
+      appBarTheme: const AppBarTheme(
+        backgroundColor: navBackground,
+        foregroundColor: Colors.white,
+        systemOverlayStyle: SystemUiOverlayStyle.light,
       ),
     );
   }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../components/post_card.dart';
@@ -28,20 +29,34 @@ class FavoritesScreen extends ConsumerWidget {
       ),
       child: Scaffold(
         backgroundColor: Colors.transparent,
+
+        // ✅ STATUS BAR CONTROLADO AQUÍ (FORMA CORRECTA)
         appBar: AppBar(
           centerTitle: true,
+          systemOverlayStyle: isDark
+              ? SystemUiOverlayStyle.light.copyWith(
+                  statusBarColor: Colors.transparent,
+                  statusBarIconBrightness: Brightness.light,
+                  statusBarBrightness: Brightness.dark,
+                )
+              : SystemUiOverlayStyle.dark.copyWith(
+                  statusBarColor: Colors.transparent,
+                  statusBarIconBrightness: Brightness.dark,
+                  statusBarBrightness: Brightness.light,
+                ),
           title: Text(
             'Favoritos',
             style: TextStyle(
               fontWeight: FontWeight.bold,
-              color: isDark ? Colors.white : AppTheme.navBackground,
               fontSize: 32,
+              color: isDark ? Colors.white : AppTheme.navBackground,
             ),
           ),
           backgroundColor: Colors.transparent,
           foregroundColor: isDark ? Colors.white : AppTheme.navBackground,
           elevation: 0,
         ),
+
         body: _FavoritesBody(
           postsAsync: postsAsync,
           bookmarkedIds: bookmarkedIds,
@@ -51,6 +66,10 @@ class FavoritesScreen extends ConsumerWidget {
     );
   }
 }
+
+// =======================================================
+// BODY
+// =======================================================
 
 class _FavoritesBody extends StatefulWidget {
   final AsyncValue<List<dynamic>> postsAsync;
@@ -87,14 +106,14 @@ class _FavoritesBodyState extends State<_FavoritesBody> {
       error: (_, __) {
         final cached = FavoritesCacheService.getFavorites();
         if (cached.isEmpty) {
-          return _buildErrorState(context);
+          return _buildErrorState();
         }
         return _favoritesList(cached);
       },
     );
   }
 
-  Widget _buildErrorState(BuildContext context) {
+  Widget _buildErrorState() {
     return Center(
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 40),
@@ -108,13 +127,7 @@ class _FavoritesBodyState extends State<_FavoritesBody> {
                 color: widget.isDark ? Colors.white12 : Colors.white,
                 shape: BoxShape.circle,
               ),
-              child: Center(
-                child: Icon(
-                  Icons.wifi_off,
-                  size: 48,
-                  color: AppTheme.splashArc,
-                ),
-              ),
+              child: Icon(Icons.wifi_off, size: 48, color: AppTheme.splashArc),
             ),
             const SizedBox(height: 12),
             Text(
@@ -164,8 +177,8 @@ class _FavoritesBodyState extends State<_FavoritesBody> {
         return TweenAnimationBuilder<double>(
           key: ValueKey(post.id),
           tween: Tween(begin: 0, end: 1),
-          duration: Duration(milliseconds: 400 + (index * 40)),
-          builder: (context, value, child) {
+          duration: Duration(milliseconds: 400 + index * 40),
+          builder: (_, value, child) {
             return Opacity(
               opacity: value,
               child: Transform.translate(
@@ -195,23 +208,23 @@ class _FavoritesBodyState extends State<_FavoritesBody> {
           const SizedBox(height: 16),
           Text(
             'Aquí aparecerán tus noticias guardadas.',
+            textAlign: TextAlign.center,
             style: TextStyle(
-              color: widget.isDark ? Colors.white : AppTheme.navBackground,
               fontSize: 18,
               fontWeight: FontWeight.w600,
+              color: widget.isDark ? Colors.white : AppTheme.navBackground,
             ),
-            textAlign: TextAlign.center,
           ),
           const SizedBox(height: 8),
           Text(
             '¡Guarda tus artículos favoritos para leerlos después!',
+            textAlign: TextAlign.center,
             style: TextStyle(
+              fontSize: 15,
               color: widget.isDark
                   ? AppTheme.splashSubtitle
                   : AppTheme.splashLogoGlow,
-              fontSize: 15,
             ),
-            textAlign: TextAlign.center,
           ),
         ],
       ),
@@ -219,9 +232,10 @@ class _FavoritesBodyState extends State<_FavoritesBody> {
   }
 }
 
-// ===============================
-// Loader adaptado a tema
-// ===============================
+// =======================================================
+// LOADER
+// =======================================================
+
 class _CustomLoader extends StatefulWidget {
   const _CustomLoader();
 
@@ -246,19 +260,23 @@ class _CustomLoaderState extends State<_CustomLoader>
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return Transform.rotate(
-      angle: _controller.value * 6.28319,
-      child: Container(
-        width: 48,
-        height: 48,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          gradient: SweepGradient(
-            colors: [
-              AppTheme.splashArc,
-              AppTheme.navSelected,
-              isDark ? Colors.transparent : Colors.white,
-            ],
+    return SizedBox(
+      width: 48,
+      height: 48,
+      child: AnimatedBuilder(
+        animation: _controller,
+        builder: (_, child) =>
+            Transform.rotate(angle: _controller.value * 6.28319, child: child),
+        child: Container(
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            gradient: SweepGradient(
+              colors: [
+                AppTheme.splashArc,
+                AppTheme.navSelected,
+                isDark ? Colors.transparent : Colors.white,
+              ],
+            ),
           ),
         ),
       ),

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart'; // ✅ IMPORT NECESARIO
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../helpers/posts_provider.dart';
@@ -49,7 +50,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             children: [
               const SizedBox(height: 40),
 
-              // ===== TÍTULO =====
               Text(
                 'NovaExpress',
                 style: TextStyle(
@@ -61,7 +61,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               ),
               const SizedBox(height: 10),
 
-              // ===== SUBTÍTULO =====
               Text(
                 'Noticias relevantes y actuales',
                 style: TextStyle(
@@ -74,7 +73,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               ),
               const SizedBox(height: 22),
 
-              // ===== BUSCADOR =====
               NewsSearchBar(
                 initialValue: _lastSearch,
                 onSearch: (query) => setState(() => _lastSearch = query),
@@ -88,7 +86,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               ),
               const SizedBox(height: 22),
 
-              // ===== IMAGEN HEADER =====
               ClipRRect(
                 borderRadius: BorderRadius.circular(18),
                 child: Image.asset(
@@ -99,7 +96,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 ),
               ),
 
-              // ===== LISTA DE POSTS =====
               postsAsync.when(
                 data: (posts) {
                   if (posts.isEmpty) {
@@ -202,32 +198,45 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       _ => _buildHomeTab(isDark),
     };
 
-    return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: isDark
-              ? const LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    AppTheme.splashBackgroundTop,
-                    AppTheme.splashBackgroundBottom,
-                  ],
-                )
-              : const LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    AppTheme.categoryBackground,
-                    AppTheme.categoryBackground,
-                  ],
-                ),
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: isDark
+          ? SystemUiOverlayStyle.light.copyWith(
+              statusBarColor: Colors.transparent,
+              statusBarIconBrightness: Brightness.light, // Android
+              statusBarBrightness: Brightness.dark, // iOS
+            )
+          : SystemUiOverlayStyle.dark.copyWith(
+              statusBarColor: Colors.transparent,
+              statusBarIconBrightness: Brightness.dark, // Android
+              statusBarBrightness: Brightness.light, // iOS
+            ),
+      child: Scaffold(
+        body: Container(
+          decoration: BoxDecoration(
+            gradient: isDark
+                ? const LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      AppTheme.splashBackgroundTop,
+                      AppTheme.splashBackgroundBottom,
+                    ],
+                  )
+                : const LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      AppTheme.categoryBackground,
+                      AppTheme.categoryBackground,
+                    ],
+                  ),
+          ),
+          child: body,
         ),
-        child: body,
-      ),
-      bottomNavigationBar: NewsBottomNavBar(
-        currentIndex: _selectedIndex,
-        onTap: (i) => setState(() => _selectedIndex = i),
+        bottomNavigationBar: NewsBottomNavBar(
+          currentIndex: _selectedIndex,
+          onTap: (i) => setState(() => _selectedIndex = i),
+        ),
       ),
     );
   }
