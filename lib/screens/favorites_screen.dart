@@ -203,7 +203,7 @@ class _FavoritesBodyState extends State<_FavoritesBody> {
             size: 64,
             color: widget.isDark
                 ? AppTheme.splashSubtitle
-                : AppTheme.bookmarksEmptyIcon,
+                : AppTheme.navSelected, // Mejor contraste en modo claro
           ),
           const SizedBox(height: 16),
           Text(
@@ -212,7 +212,9 @@ class _FavoritesBodyState extends State<_FavoritesBody> {
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w600,
-              color: widget.isDark ? Colors.white : AppTheme.navBackground,
+              color: widget.isDark
+                  ? Colors.white
+                  : Color(0xFF222B45), // Texto más oscuro en modo claro
             ),
           ),
           const SizedBox(height: 8),
@@ -223,7 +225,7 @@ class _FavoritesBodyState extends State<_FavoritesBody> {
               fontSize: 15,
               color: widget.isDark
                   ? AppTheme.splashSubtitle
-                  : AppTheme.splashLogoGlow,
+                  : Color(0xFF3578C6), // Azul más fuerte para mejor contraste
             ),
           ),
         ],
