@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../helpers/app_theme.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -12,9 +13,18 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    Future.delayed(const Duration(seconds: 2), () {
+    _checkOnboarding();
+  }
+
+  Future<void> _checkOnboarding() async {
+    await Future.delayed(const Duration(seconds: 2));
+    final prefs = await SharedPreferences.getInstance();
+    final seenOnboarding = prefs.getBool('seenOnboarding') ?? false;
+    if (seenOnboarding) {
+      Navigator.of(context).pushReplacementNamed('/login');
+    } else {
       Navigator.of(context).pushReplacementNamed('/onboarding');
-    });
+    }
   }
 
   @override

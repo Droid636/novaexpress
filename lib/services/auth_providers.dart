@@ -2,7 +2,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-final registerProvider = FutureProvider.family<void, Map<String, String>>((ref, userData) async {
+final registerProvider = FutureProvider.family<void, Map<String, String>>((
+  ref,
+  userData,
+) async {
   final auth = FirebaseAuth.instance;
   final firestore = FirebaseFirestore.instance;
   final email = userData['email']!;
@@ -24,9 +27,16 @@ final registerProvider = FutureProvider.family<void, Map<String, String>>((ref, 
   });
 });
 
-final loginProvider = FutureProvider.family<UserCredential, Map<String, String>>((ref, credentials) async {
-  final auth = FirebaseAuth.instance;
-  final email = credentials['email']!;
-  final password = credentials['password']!;
-  return await auth.signInWithEmailAndPassword(email: email, password: password);
-});
+final loginProvider =
+    FutureProvider.family<UserCredential, Map<String, String>>((
+      ref,
+      credentials,
+    ) async {
+      final auth = FirebaseAuth.instance;
+      final email = credentials['email']!;
+      final password = credentials['password']!;
+      return await auth.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+    });
