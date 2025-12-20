@@ -44,6 +44,8 @@ dependencies:
   intl: ^0.20.2
   flutter_widget_from_html: ^0.17.1
   easy_cache_manager: ^0.1.8
+  firebase_core: ^4.3.0
+  firebase_auth: ^6.1.3
   
 
 dev_dependencies:
