@@ -177,6 +177,30 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.1.2"
+  cloud_firestore:
+    dependency: "direct main"
+    description:
+      name: cloud_firestore
+      sha256: "88abd6dc7786c23c8b5e434901bb0d79176414e52e9ab50a8e52552ff6148d7a"
+      url: "https://pub.dev"
+    source: hosted
+    version: "6.1.1"
+  cloud_firestore_platform_interface:
+    dependency: transitive
+    description:
+      name: cloud_firestore_platform_interface
+      sha256: "573d4b4ebc56ba573dc9bac88b65bdb991cc5b66a885a62c7ab8dd1e2eaa0944"
+      url: "https://pub.dev"
+    source: hosted
+    version: "7.0.5"
+  cloud_firestore_web:
+    dependency: transitive
+    description:
+      name: cloud_firestore_web
+      sha256: c1ef53308a09d475503f75b658b65fae32af24047d03bba0713098f882ed187f
+      url: "https://pub.dev"
+    source: hosted
+    version: "5.1.1"
   code_builder:
     dependency: transitive
     description:
@@ -337,6 +361,30 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.3.1"
+  firebase_storage:
+    dependency: "direct main"
+    description:
+      name: firebase_storage
+      sha256: "5321a88518d992d03f8482bc48ede9cfb315b465bd59f1587468bc2f4a809d08"
+      url: "https://pub.dev"
+    source: hosted
+    version: "13.0.5"
+  firebase_storage_platform_interface:
+    dependency: transitive
+    description:
+      name: firebase_storage_platform_interface
+      sha256: dbcd5363a6b2edf2d1238fc22f10f4a39f0ea991a432b4fc43871ea31647cf5a
+      url: "https://pub.dev"
+    source: hosted
+    version: "5.2.16"
+  firebase_storage_web:
+    dependency: transitive
+    description:
+      name: firebase_storage_web
+      sha256: "141ada1185fbd4a982d7cdd4486d1e42fe616db6024e22f7fcb3e9df388be8b4"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.11.1"
   fixnum:
     dependency: transitive
     description:
@@ -577,7 +625,7 @@ packages:
     source: hosted
     version: "4.9.0"
   json_serializable:
-    dependency: "direct main"
+    dependency: "direct dev"
     description:
       name: json_serializable
       sha256: c50ef5fc083d5b5e12eef489503ba3bf5ccc899e487d691584699b4bdefeea8c
