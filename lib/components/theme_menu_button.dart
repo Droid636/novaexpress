@@ -48,6 +48,21 @@ class ThemeMenuButton extends ConsumerWidget {
                   ),
                   const Divider(),
                   ListTile(
+                    leading: const Icon(Icons.person, color: Colors.blueAccent),
+                    title: Text(
+                      'Mi perfil',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w500,
+                        color: isDark ? Colors.blue[200] : Colors.blueAccent,
+                      ),
+                    ),
+                    onTap: () {
+                      Navigator.pop(context);
+                      Navigator.of(context).pushNamed('/profile');
+                    },
+                  ),
+                  const Divider(),
+                  ListTile(
                     leading: const Icon(Icons.logout, color: Colors.redAccent),
                     title: Text(
                       'Cerrar sesión',

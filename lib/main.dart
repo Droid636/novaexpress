@@ -10,6 +10,7 @@ import 'screens/register_screen.dart';
 import 'helpers/app_theme.dart';
 import 'helpers/theme_mode_provider.dart';
 import 'firebase_options.dart';
+import 'screens/profile_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -41,6 +42,7 @@ class MyApp extends ConsumerWidget {
         '/login': (context) => const LoginScreen(),
         '/register': (context) => const RegisterScreen(),
         '/home': (context) => const HomeScreen(),
+        '/profile': (context) => const ProfileScreen(),
       },
     );
   }
