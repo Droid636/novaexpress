@@ -11,6 +11,7 @@ final registerProvider = FutureProvider.family<void, Map<String, String>>((
   final email = userData['email']!;
   final password = userData['password']!;
   final name = userData['name'] ?? '';
+  final profileImage = userData['profileImage'] ?? '';
 
   // Crear usuario en Firebase Auth
   final userCredential = await auth.createUserWithEmailAndPassword(
@@ -23,6 +24,7 @@ final registerProvider = FutureProvider.family<void, Map<String, String>>((
     'uid': userCredential.user!.uid,
     'email': email,
     'name': name,
+    'profileImage': profileImage,
     'createdAt': FieldValue.serverTimestamp(),
   });
 });
