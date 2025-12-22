@@ -1,149 +1,40 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart'; // 👈 AGREGADO
-import 'package:dio/dio.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:convert';
+import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../models/post.dart';
+import '../helpers/categories_providers.dart';
 import '../components/post_card.dart';
 import '../helpers/app_theme.dart';
 
-class Category {
-  final int id;
-  final String name;
-
-  Category({required this.id, required this.name});
-}
-
-class CategoriesScreen extends StatefulWidget {
+class CategoriesScreen extends ConsumerWidget {
   const CategoriesScreen({super.key});
 
   @override
-  State<CategoriesScreen> createState() => _CategoriesScreenState();
-}
-
-class _CategoriesScreenState extends State<CategoriesScreen> {
-  final Dio _dio = Dio(
-    BaseOptions(baseUrl: 'https://news.freepi.io/wp-json/wp/v2/'),
-  );
-
-  List<Category> _categories = [];
-  List<Post> _posts = [];
-
-  int? _selectedCategoryId;
-  bool _loadingCategories = true;
-  bool _loadingPosts = false;
-  String? _error;
-
-  @override
-  void initState() {
-    super.initState();
-    _fetchCategories();
-  }
-
-  // ===============================
-  // OBTENER CATEGORÍAS
-  // ===============================
-  Future<void> _fetchCategories() async {
-    setState(() {
-      _loadingCategories = true;
-      _error = null;
-    });
-
-    try {
-      final response = await _dio.get(
-        'categories',
-        queryParameters: {'per_page': 20},
-      );
-
-      final List data = response.data;
-      _categories = data
-          .map((json) => Category(id: json['id'], name: json['name']))
-          .toList();
-    } catch (_) {
-      _error = 'Error al cargar categorías';
-    }
-
-    setState(() {
-      _loadingCategories = false;
-      if (_categories.isNotEmpty) {
-        _selectedCategoryId = _categories.first.id;
-        _fetchPosts(_selectedCategoryId!);
-      }
-    });
-  }
-
-  // ===============================
-  // OBTENER POSTS
-  // ===============================
-  Future<void> _fetchPosts(int categoryId) async {
-    setState(() {
-      _loadingPosts = true;
-      _error = null;
-      _posts.clear();
-    });
-
-    final cacheKey = 'cat_posts_$categoryId';
-
-    try {
-      final response = await _dio.get(
-        'posts',
-        queryParameters: {
-          'categories': categoryId,
-          '_embed': 1,
-          'per_page': 10,
-        },
-      );
-
-      final List data = response.data;
-      _posts = data.map((json) => Post.fromJson(json)).toList();
-
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setStringList(
-        cacheKey,
-        _posts.map((p) => jsonEncode(p.toJson())).toList(),
-      );
-    } catch (_) {
-      final prefs = await SharedPreferences.getInstance();
-      final cached = prefs.getStringList(cacheKey) ?? [];
-
-      if (cached.isNotEmpty) {
-        _posts = cached.map((e) => Post.fromJson(jsonDecode(e))).toList();
-        _error = 'Sin conexión. Mostrando noticias guardadas.';
-      } else {
-        _error = 'No hay conexión y no hay noticias guardadas.';
-      }
-    }
-
-    setState(() => _loadingPosts = false);
-  }
-
-  // ===============================
-  // UI
-  // ===============================
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final categoriesAsync = ref.watch(categoriesProvider);
+    final selectedCategory = ref.watch(selectedCategoryProvider);
 
-    // 👇 AGREGADO: control del status bar
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
         statusBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
         statusBarBrightness: isDark ? Brightness.dark : Brightness.light,
       ),
-      child: Builder(
-        builder: (_) {
-          if (_loadingCategories) {
+      child: categoriesAsync.when(
+        loading: () =>
+            _screenBackground(isDark, const Center(child: _CustomLoader())),
+        error: (e, _) => _screenBackground(isDark, _errorState(ref, isDark)),
+        data: (categories) {
+          if (categories.isEmpty) {
             return _screenBackground(
               isDark,
-              const Center(child: _CustomLoader()),
+              _errorState(ref, isDark, msg: 'No hay categorías.'),
             );
           }
 
-          if (_error != null && _categories.isEmpty) {
-            return _screenBackground(isDark, _errorState());
-          }
+          final selectedId = selectedCategory ?? categories.first.id;
+          final postsAsync = ref.watch(postsByCategoryProvider(selectedId));
 
           return _screenBackground(
             isDark,
@@ -167,18 +58,18 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                     child: ListView.separated(
                       scrollDirection: Axis.horizontal,
                       padding: const EdgeInsets.symmetric(horizontal: 12),
-                      itemCount: _categories.length,
+                      itemCount: categories.length,
                       separatorBuilder: (_, __) => const SizedBox(width: 8),
                       itemBuilder: (context, index) {
-                        final cat = _categories[index];
-                        final selected = cat.id == _selectedCategoryId;
+                        final cat = categories[index];
+                        final selected = cat.id == selectedId;
 
                         return ChoiceChip(
                           label: Text(cat.name),
                           selected: selected,
                           onSelected: (_) {
-                            setState(() => _selectedCategoryId = cat.id);
-                            _fetchPosts(cat.id);
+                            ref.read(selectedCategoryProvider.notifier).state =
+                                cat.id;
                           },
                           selectedColor: AppTheme.navSelected,
                           backgroundColor: isDark
@@ -199,16 +90,24 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
 
                   const SizedBox(height: 8),
 
-                  // ================= LISTA =================
+                  // ================= POSTS =================
                   Expanded(
-                    child: AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 400),
-                      child: _loadingPosts
-                          ? const Center(child: _CustomLoader())
-                          : _posts.isEmpty
+                    child: postsAsync.when(
+                      loading: () => const Center(child: _CustomLoader()),
+                      error: (e, _) => Center(
+                        child: Text(
+                          e.toString().replaceAll('Exception: ', ''),
+                          style: TextStyle(
+                            color: isDark
+                                ? Colors.white70
+                                : AppTheme.navUnselected,
+                          ),
+                        ),
+                      ),
+                      data: (posts) => posts.isEmpty
                           ? Center(
                               child: Text(
-                                _error ?? 'No hay noticias.',
+                                'No hay noticias.',
                                 style: TextStyle(
                                   color: isDark
                                       ? Colors.white70
@@ -217,7 +116,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                               ),
                             )
                           : ListView.builder(
-                              itemCount: _posts.length,
+                              itemCount: posts.length,
                               itemBuilder: (context, index) {
                                 return TweenAnimationBuilder<double>(
                                   tween: Tween(begin: 0, end: 1),
@@ -234,7 +133,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                                     );
                                   },
                                   child: PostCard(
-                                    post: _posts[index],
+                                    post: posts[index],
                                     showImage: true,
                                   ),
                                 );
@@ -251,9 +150,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
     );
   }
 
-  // ===============================
-  // HELPERS
-  // ===============================
+  // ================= BACKGROUND =================
   Widget _screenBackground(bool isDark, Widget child) {
     return Container(
       decoration: BoxDecoration(
@@ -273,9 +170,8 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
     );
   }
 
-  Widget _errorState() {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
+  // ================= ERROR =================
+  Widget _errorState(WidgetRef ref, bool isDark, {String? msg}) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -291,7 +187,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
           ),
           const SizedBox(height: 12),
           Text(
-            'Sin conexión',
+            msg ?? 'Sin conexión',
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
@@ -300,7 +196,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
           ),
           const SizedBox(height: 18),
           ElevatedButton.icon(
-            onPressed: _fetchCategories,
+            onPressed: () => ref.refresh(categoriesProvider),
             icon: const Icon(Icons.refresh),
             label: const Text('Reintentar'),
             style: ElevatedButton.styleFrom(
@@ -308,7 +204,6 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                   ? AppTheme.navSelected
                   : AppTheme.searchBackground,
               foregroundColor: isDark ? Colors.white : AppTheme.navBackground,
-              elevation: isDark ? 4 : 2,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(14),
               ),
@@ -321,8 +216,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
   }
 }
 
-// ================= LOADER (NO TOCADO) =================
-
+// ================= LOADER =================
 class _CustomLoader extends StatefulWidget {
   const _CustomLoader();
 
