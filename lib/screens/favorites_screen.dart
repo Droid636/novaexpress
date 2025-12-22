@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../components/post_card.dart';
 import '../helpers/app_theme.dart';
 import '../helpers/posts_provider.dart';
+import '../helpers/bookmarks_provider.dart';
 import '../services/favorites_cache_service.dart';
 
 class FavoritesScreen extends ConsumerWidget {

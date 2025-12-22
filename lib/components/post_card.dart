@@ -1,55 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import '../helpers/bookmarks_provider.dart';
 
 import '../models/post.dart';
 import 'post_detail_modal.dart';
 import '../helpers/app_theme.dart';
-
-/// ===============================
-/// PROVIDER
-/// ===============================
-final bookmarksProvider = StateNotifierProvider<BookmarksNotifier, Set<int>>(
-  (ref) => BookmarksNotifier(),
-);
-
-/// ===============================
-/// NOTIFIER CON CACHE
-/// ===============================
-class BookmarksNotifier extends StateNotifier<Set<int>> {
-  BookmarksNotifier() : super({}) {
-    _loadBookmarks();
-  }
-
-  static const String _storageKey = 'bookmarked_posts';
-
-  bool isBookmarked(Post post) => state.contains(post.id);
-
-  Future<void> addBookmark(Post post) async {
-    state = {...state, post.id};
-    await _saveBookmarks();
-  }
-
-  Future<void> removeBookmark(Post post) async {
-    state = state.where((id) => id != post.id).toSet();
-    await _saveBookmarks();
-  }
-
-  Future<void> _saveBookmarks() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setStringList(
-      _storageKey,
-      state.map((id) => id.toString()).toList(),
-    );
-  }
-
-  Future<void> _loadBookmarks() async {
-    final prefs = await SharedPreferences.getInstance();
-    final saved = prefs.getStringList(_storageKey) ?? [];
-    state = saved.map(int.parse).toSet();
-  }
-}
 
 /// ===============================
 /// POST CARD
@@ -117,7 +73,6 @@ class PostCard extends ConsumerWidget {
                   ),
                   onPressed: () async {
                     final notifier = ref.read(bookmarksProvider.notifier);
-
                     if (isBookmarked) {
                       await notifier.removeBookmark(post);
                       _snack(context, 'Eliminado de favoritos.');
