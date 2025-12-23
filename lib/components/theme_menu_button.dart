@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../helpers/app_theme.dart';
 import '../helpers/theme_mode_provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ThemeMenuButton extends ConsumerWidget {
   const ThemeMenuButton({super.key});
@@ -75,6 +76,8 @@ class ThemeMenuButton extends ConsumerWidget {
                       Navigator.pop(context);
                       try {
                         await FirebaseAuth.instance.signOut();
+                        final prefs = await SharedPreferences.getInstance();
+                        await prefs.remove('isLoggedIn');
                         if (context.mounted) {
                           Navigator.of(
                             context,

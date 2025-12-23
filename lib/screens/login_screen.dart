@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import '../utils/validators.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../services/auth_providers.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
-  const LoginScreen({Key? key}) : super(key: key);
+  const LoginScreen({super.key});
 
   @override
   ConsumerState<LoginScreen> createState() => _LoginScreenState();
@@ -33,6 +34,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           'password': _passwordController.text.trim(),
         }).future,
       );
+      // Guardar sesión iniciada
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('isLoggedIn', true);
       if (!mounted) return;
       await showDialog(
         context: context,
