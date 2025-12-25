@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../components/post_card.dart';
 import '../helpers/app_theme.dart';
-import '../helpers/posts_provider.dart';
+import '../helpers/favorite_posts_provider.dart';
 import '../helpers/bookmarks_provider.dart';
 import '../services/favorites_cache_service.dart';
 
@@ -15,7 +15,7 @@ class FavoritesScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    final postsAsync = ref.watch(postsProvider(''));
+    final postsAsync = ref.watch(favoritePostsProvider);
     final Set<int> bookmarkedIds = ref.watch(bookmarksProvider);
 
     return Container(

@@ -4,6 +4,12 @@ class ApiService {
   final Dio _dio = Dio();
   final String baseUrl = 'https://news.freepi.io/wp-json/wp/v2';
 
+  // Obtener un post único por su ID
+  Future<Response> getPostById(int id) async {
+    return await _dio.get('$baseUrl/posts/$id', queryParameters: {'_embed': 1});
+  }
+
+  // Obtener lista de posts con paginación y filtros
   Future<Response> getPosts({
     int page = 1,
     int perPage = 10,
@@ -14,12 +20,14 @@ class ApiService {
       'page': page,
       'per_page': perPage,
       '_embed': 1,
-      if (search != null) 'search': search,
+      if (search != null && search.isNotEmpty) 'search': search,
       if (category != null) 'categories': category,
     };
+
     return await _dio.get('$baseUrl/posts', queryParameters: params);
   }
 
+  // Obtener categorías
   Future<Response> getCategories() async {
     return await _dio.get('$baseUrl/categories');
   }
