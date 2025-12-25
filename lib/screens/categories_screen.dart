@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../helpers/categories_providers.dart';
 import '../components/post_card.dart';
-import '../helpers/app_theme.dart';
+import '../app_theme.dart';
 
 class CategoriesScreen extends ConsumerWidget {
   const CategoriesScreen({super.key});

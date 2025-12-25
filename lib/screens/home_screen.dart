@@ -8,7 +8,7 @@ import '../components/post_card.dart';
 import '../components/news_search_bar.dart';
 import '../components/news_bottom_nav_bar.dart';
 import '../components/theme_menu_button.dart'; // ✅ NUEVO
-import '../helpers/app_theme.dart';
+import '../app_theme.dart';
 import 'favorites_screen.dart';
 import 'categories_screen.dart';
 import '../services/favorites_cache_service.dart';

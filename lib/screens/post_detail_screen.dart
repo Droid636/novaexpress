@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/post.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
-import '../helpers/app_theme.dart';
+import '../app_theme.dart';
 
 class PostDetailScreen extends StatelessWidget {
   final Post post;

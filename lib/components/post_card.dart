@@ -5,7 +5,7 @@ import '../helpers/bookmarks_provider.dart';
 
 import '../models/post.dart';
 import 'post_detail_modal.dart';
-import '../helpers/app_theme.dart';
+import '../app_theme.dart';
 
 /// ===============================
 /// POST CARD

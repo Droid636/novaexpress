@@ -7,7 +7,7 @@ import 'screens/splash_screen.dart';
 import 'screens/onboarding_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/register_screen.dart';
-import 'helpers/app_theme.dart';
+import 'app_theme.dart';
 import 'helpers/theme_mode_provider.dart';
 import 'firebase_options.dart';
 import 'screens/profile_screen.dart';
