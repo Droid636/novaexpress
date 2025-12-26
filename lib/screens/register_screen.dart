@@ -135,6 +135,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                   controller: _phoneController,
                   decoration: const InputDecoration(labelText: 'Teléfono'),
                   keyboardType: TextInputType.phone,
+                  validator: Validators.phone,
                 ),
                 const SizedBox(height: 16),
 

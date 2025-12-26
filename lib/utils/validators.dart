@@ -26,4 +26,15 @@ class Validators {
     }
     return null;
   }
+
+  static String? phone(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'El teléfono es obligatorio';
+    }
+    final phoneRegex = RegExp(r'^\d{10,15}$');
+    if (!phoneRegex.hasMatch(value)) {
+      return 'Teléfono inválido';
+    }
+    return null;
+  }
 }
