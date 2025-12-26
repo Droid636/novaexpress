@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../utils/validators.dart';
 import '../services/auth_providers.dart';
+import '../app_theme.dart';
 
 class RegisterScreen extends ConsumerStatefulWidget {
   const RegisterScreen({super.key});
@@ -11,6 +12,7 @@ class RegisterScreen extends ConsumerStatefulWidget {
 }
 
 class _RegisterScreenState extends ConsumerState<RegisterScreen> {
+    bool _showPassword = false;
   final _formKey = GlobalKey<FormState>();
 
   final _nameController = TextEditingController();
@@ -95,96 +97,207 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
-      appBar: AppBar(title: const Text('Registro')),
-      body: Center(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Nombre
-                TextFormField(
-                  controller: _nameController,
-                  decoration: const InputDecoration(labelText: 'Nombre'),
-                  validator: Validators.name,
-                ),
-                const SizedBox(height: 16),
+      extendBodyBehindAppBar: true,
+      appBar: AppBar(
+        title: const SizedBox.shrink(),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+      ),
+      body: Container(
+        width: double.infinity,
+        height: double.infinity,
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [AppTheme.navBackground, AppTheme.navSelected],
+          ),
+        ),
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
+            child: Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: isDark
+                    ? AppTheme.navBackground.withOpacity(0.9)
+                    : Colors.white,
+                borderRadius: BorderRadius.circular(28),
+              ),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.person_add_alt_1,
+                      color: isDark ? Colors.white : AppTheme.categoryChipText,
+                      size: 80,
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Crear cuenta',
+                      style: TextStyle(
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                        color: isDark
+                            ? Colors.white
+                            : AppTheme.categoryChipText,
+                      ),
+                    ),
+                    const SizedBox(height: 20),
 
-                // Apellido
-                TextFormField(
-                  controller: _lastNameController,
-                  decoration: const InputDecoration(labelText: 'Apellido'),
-                  validator: Validators.name,
-                ),
-                const SizedBox(height: 16),
+                    _buildTextField(
+                      controller: _nameController,
+                      label: 'Nombre',
+                      validator: Validators.name,
+                      isDark: isDark,
+                    ),
+                    const SizedBox(height: 16),
+                    _buildTextField(
+                      controller: _lastNameController,
+                      label: 'Apellido',
+                      validator: Validators.name,
+                      isDark: isDark,
+                    ),
+                    const SizedBox(height: 16),
+                    _buildTextField(
+                      controller: _emailController,
+                      label: 'Correo',
+                      validator: Validators.email,
+                      keyboardType: TextInputType.emailAddress,
+                      isDark: isDark,
+                    ),
+                    const SizedBox(height: 16),
+                    _buildTextField(
+                      controller: _phoneController,
+                      label: 'Teléfono',
+                      validator: Validators.phone,
+                      keyboardType: TextInputType.phone,
+                      isDark: isDark,
+                    ),
+                    const SizedBox(height: 16),
 
-                // Email
-                TextFormField(
-                  controller: _emailController,
-                  decoration: const InputDecoration(labelText: 'Correo'),
-                  validator: Validators.email,
-                  keyboardType: TextInputType.emailAddress,
-                ),
-                const SizedBox(height: 16),
-
-                // Teléfono
-                TextFormField(
-                  controller: _phoneController,
-                  decoration: const InputDecoration(labelText: 'Teléfono'),
-                  keyboardType: TextInputType.phone,
-                  validator: Validators.phone,
-                ),
-                const SizedBox(height: 16),
-
-                // Fecha de nacimiento
-                TextFormField(
-                  readOnly: true,
-                  decoration: InputDecoration(
-                    labelText: 'Fecha de nacimiento',
-                    hintText: _birthDateText(),
-                  ),
-                  onTap: () async {
-                    final date = await showDatePicker(
-                      context: context,
-                      initialDate: DateTime(2000),
-                      firstDate: DateTime(1900),
-                      lastDate: DateTime.now(),
-                    );
-                    if (date != null) {
-                      setState(() => _birthDate = date);
-                    }
-                  },
-                  validator: (_) => _birthDate == null
-                      ? 'Selecciona tu fecha de nacimiento'
-                      : null,
-                ),
-                const SizedBox(height: 16),
-
-                // Password
-                TextFormField(
-                  controller: _passwordController,
-                  decoration: const InputDecoration(labelText: 'Contraseña'),
-                  validator: Validators.password,
-                  obscureText: true,
-                ),
-                const SizedBox(height: 24),
-
-                _isLoading
-                    ? const CircularProgressIndicator()
-                    : SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton(
-                          onPressed: _submit,
-                          child: const Text('Registrarse'),
+                    GestureDetector(
+                      onTap: () async {
+                        final date = await showDatePicker(
+                          context: context,
+                          initialDate: DateTime(2000),
+                          firstDate: DateTime(1900),
+                          lastDate: DateTime.now(),
+                        );
+                        if (date != null) setState(() => _birthDate = date);
+                      },
+                      child: AbsorbPointer(
+                        child: _buildTextField(
+                          controller: TextEditingController(
+                            text: _birthDate == null ? "" : _birthDateText(),
+                          ),
+                          label: 'Fecha de nacimiento',
+                          isDark: isDark,
+                          validator: (_) =>
+                              _birthDate == null ? 'Requerido' : null,
                         ),
                       ),
-              ],
+                    ),
+                    const SizedBox(height: 16),
+                    _buildTextField(
+                      controller: _passwordController,
+                      label: 'Contraseña',
+                      validator: Validators.password,
+                      obscureText: !_showPassword,
+                      isDark: isDark,
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          _showPassword ? Icons.visibility : Icons.visibility_off,
+                          color: isDark ? Colors.white70 : Colors.grey,
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            _showPassword = !_showPassword;
+                          });
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: 30),
+
+                    _isLoading
+                        ? const CircularProgressIndicator()
+                        : SizedBox(
+                            width: double.infinity,
+                            height: 55,
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppTheme.navSelected,
+                                foregroundColor: Colors.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                              ),
+                              onPressed: _submit,
+                              child: const Text(
+                                'Registrarse',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ),
+                    const SizedBox(height: 10),
+                    TextButton(
+                      onPressed: () =>
+                          Navigator.of(context).pushReplacementNamed('/login'),
+                      child: Text(
+                        '¿Ya tienes cuenta? Inicia sesión',
+                        style: TextStyle(color: AppTheme.navSelected),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String label,
+    required bool isDark,
+    String? Function(String?)? validator,
+    TextInputType keyboardType = TextInputType.text,
+    bool obscureText = false,
+    Widget? suffixIcon,
+  }) {
+    return TextFormField(
+      controller: controller,
+      validator: validator,
+      keyboardType: keyboardType,
+      obscureText: obscureText,
+      style: TextStyle(
+        color: isDark ? Colors.white : AppTheme.categoryChipText,
+      ),
+      decoration: InputDecoration(
+        labelText: label,
+        filled: true,
+        fillColor: isDark
+            ? Colors.white.withOpacity(0.05)
+            : Colors.grey.shade100,
+        contentPadding: const EdgeInsets.symmetric(
+          vertical: 16,
+          horizontal: 20,
+        ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide.none,
+        ),
+        suffixIcon: suffixIcon,
       ),
     );
   }

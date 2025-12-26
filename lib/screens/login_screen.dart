@@ -14,6 +14,7 @@ class LoginScreen extends ConsumerStatefulWidget {
 }
 
 class _LoginScreenState extends ConsumerState<LoginScreen> {
+  bool _showPassword = false;
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -226,9 +227,26 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               width: 1.0,
                             ),
                           ),
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _showPassword
+                                  ? Icons.visibility
+                                  : Icons.visibility_off,
+                              color:
+                                  Theme.of(context).brightness ==
+                                      Brightness.dark
+                                  ? Colors.white70
+                                  : Colors.grey,
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                _showPassword = !_showPassword;
+                              });
+                            },
+                          ),
                         ),
                         validator: Validators.password,
-                        obscureText: true,
+                        obscureText: !_showPassword,
                         style: TextStyle(color: textColor),
                       ),
                       const SizedBox(height: 24),
