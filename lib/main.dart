@@ -10,11 +10,14 @@ import 'screens/register_screen.dart';
 import 'app_theme.dart';
 import 'helpers/theme_mode_provider.dart';
 import 'firebase_options.dart';
+
 import 'screens/profile_screen.dart';
+import 'services/favorites_cache_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: firebaseConfig);
+  await FavoritesCacheService.init();
   runApp(const ProviderScope(child: MyApp()));
 }
 

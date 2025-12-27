@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../models/post.dart';
+import '../services/favorites_cache_service.dart';
 
 /// ===============================
 /// AUTH USER PROVIDER
@@ -40,12 +41,29 @@ class BookmarksNotifier extends StateNotifier<Set<int>> {
     state = {...state, post.id};
     await _saveBookmarks();
     await _saveToFirestore();
+    // Guardar el post en el caché de Hive
+    final currentFavorites = FavoritesCacheService.getFavorites();
+    final updatedFavorites = {...currentFavorites, post};
+    await FavoritesCacheService.saveFavorites(updatedFavorites.toList());
   }
 
   Future<void> removeBookmark(Post post) async {
     state = state.where((id) => id != post.id).toSet();
     await _saveBookmarks();
     await _saveToFirestore();
+    // Eliminar el post del caché de Hive
+    final currentFavorites = FavoritesCacheService.getFavorites();
+    final updatedFavorites = currentFavorites
+        .where((p) => p.id != post.id)
+        .toList();
+    await FavoritesCacheService.saveFavorites(updatedFavorites);
+  }
+
+  Future<void> logout() async {
+    // Llama esto al cerrar sesión
+    await FavoritesCacheService.clearCache();
+    state = {};
+    await _saveBookmarks();
   }
 
   /// ===============================
@@ -76,6 +94,18 @@ class BookmarksNotifier extends StateNotifier<Set<int>> {
 
         state = favs;
         await _saveBookmarks();
+        // Aquí deberías cargar los posts favoritos desde la API y guardarlos en Hive
+        try {
+          final posts = <Post>[];
+          for (final id in favs) {
+            // Aquí deberías tener acceso a un servicio de API para obtener el post por ID
+            // Este ejemplo asume que tienes un método estático Post.fetchById(id)
+            // Si no, deberás inyectar el servicio o pasarlo como parámetro
+            // final post = await Post.fetchById(id);
+            // posts.add(post);
+          }
+          // await FavoritesCacheService.saveFavorites(posts);
+        } catch (_) {}
         return;
       }
     }

@@ -40,4 +40,9 @@ class FavoritesCacheService {
     final box = Hive.box<int>(_idsBoxName);
     return box.values.toSet();
   }
+
+  static Future<void> clearCache() async {
+    await Hive.box<Post>(_boxName).clear();
+    await Hive.box<int>(_idsBoxName).clear();
+  }
 }
