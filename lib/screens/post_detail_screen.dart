@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../models/post.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import '../app_theme.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import '../services/comments_section.dart';
 
 class PostDetailScreen extends StatelessWidget {
   final Post post;
@@ -117,6 +119,42 @@ class PostDetailScreen extends StatelessWidget {
                   color: isDark ? Colors.white54 : AppTheme.navUnselected,
                 ),
               ),
+            ),
+            const SizedBox(height: 24),
+
+            // ================= COMENTARIOS =================
+            Builder(
+              builder: (context) {
+                final user = FirebaseAuth.instance.currentUser;
+                if (user == null) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Inicia sesión para comentar',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.grey[700],
+                          ),
+                        ),
+                        SizedBox(height: 8),
+                        ElevatedButton(
+                          onPressed: () =>
+                              Navigator.of(context).pushNamed('/login'),
+                          child: Text('Iniciar sesión'),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+                return CommentsSection(
+                  postId: post.id.toString(),
+                  userId: user.uid,
+                  userName: user.displayName ?? user.email ?? '',
+                );
+              },
             ),
           ],
         ),
