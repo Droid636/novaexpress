@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "740302132438",
+    "project_id": "novaexpress-f6c0e",
+    "storage_bucket": "novaexpress-f6c0e.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:740302132438:android:c796767fc084f6ee2b2577",
+        "android_client_info": {
+          "package_name": "com.example.novaexpress"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAPtS0m8qIe5XAIlbNfFph_SuVfXSHld7Y"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

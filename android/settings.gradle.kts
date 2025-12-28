@@ -15,6 +15,11 @@ pluginManagement {
         mavenCentral()
         gradlePluginPortal()
     }
+
+    // 🔥 AQUÍ SE DECLARA EL PLUGIN DE GOOGLE SERVICES
+    plugins {
+        id("com.google.gms.google-services") version "4.4.0"
+    }
 }
 
 plugins {
