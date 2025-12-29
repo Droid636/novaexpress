@@ -49,7 +49,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         backgroundColor: AppTheme.navBackground,
       ),
       body: Padding(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.all(16),
         child: user == null
             ? Center(
                 child: Text(
@@ -101,23 +101,28 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
                   return SingleChildScrollView(
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         const SizedBox(height: 24),
 
-                        /// HEADER PERFIL
+                        // CARD CENTRAL CON IMAGEN Y NOMBRE
                         Card(
                           color: isDark ? AppTheme.navBackground : Colors.white,
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
+                            borderRadius: BorderRadius.circular(20),
                           ),
-                          elevation: 4,
+                          elevation: 6,
                           child: Padding(
-                            padding: const EdgeInsets.all(16),
-                            child: Row(
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 24,
+                              horizontal: 16,
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
+                                // Imagen central
                                 CircleAvatar(
-                                  radius: 38,
+                                  radius: 50,
                                   backgroundImage:
                                       (photoURL != null &&
                                           photoURL.toString().isNotEmpty)
@@ -128,41 +133,36 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                                           photoURL.toString().isEmpty)
                                       ? Icon(
                                           Icons.person,
-                                          size: 36,
+                                          size: 50,
                                           color: isDark
-                                              ? Colors.white
+                                              ? Colors.white70
                                               : Colors.grey[700],
                                         )
                                       : null,
                                 ),
-                                const SizedBox(width: 20),
-                                Expanded(
-                                  child: Text(
-                                    '$name $lastName',
-                                    style: TextStyle(
-                                      fontSize: 22,
-                                      fontWeight: FontWeight.bold,
-                                      color: isDark
-                                          ? Colors.white
-                                          : Colors.black87,
-                                    ),
+                                const SizedBox(height: 16),
+                                // Nombre centrado
+                                Text(
+                                  '$name $lastName',
+                                  style: TextStyle(
+                                    fontSize: 22,
+                                    fontWeight: FontWeight.bold,
+                                    color: isDark
+                                        ? Colors.white
+                                        : Colors.black87,
                                   ),
+                                  textAlign: TextAlign.center,
                                 ),
-                                IconButton(
-                                  icon: Icon(
-                                    Icons.edit,
-                                    color: AppTheme.navSelected,
-                                  ),
+                                const SizedBox(height: 12),
+                                // Botón editar
+                                ElevatedButton.icon(
                                   onPressed: () async {
                                     final updated = await showEditProfileModal(
                                       context,
                                       data,
                                     );
-
                                     if (updated == true) {
                                       _refreshProfile();
-
-                                      // 🔹 Mostrar Snackbar de éxito
                                       ScaffoldMessenger.of(
                                         context,
                                       ).showSnackBar(
@@ -174,6 +174,14 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                                       );
                                     }
                                   },
+                                  icon: const Icon(Icons.edit),
+                                  label: const Text('Editar perfil'),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: AppTheme.navSelected,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                  ),
                                 ),
                               ],
                             ),
@@ -182,17 +190,26 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
                         const SizedBox(height: 32),
 
-                        /// DATOS PERFIL
-                        _profileItem(context, 'Nombre', name),
-                        _profileItem(context, 'Apellido', lastName),
-                        _profileItem(context, 'Correo', email),
-                        _profileItem(context, 'Teléfono', phone),
-                        _profileItem(
-                          context,
+                        // DATOS PERFIL EN MINI-CARDS
+                        _profileDataCard(
+                          'Correo',
+                          email,
+                          isDark,
+                          icon: Icons.email,
+                        ),
+                        _profileDataCard(
+                          'Teléfono',
+                          phone,
+                          isDark,
+                          icon: Icons.phone,
+                        ),
+                        _profileDataCard(
                           'Fecha de nacimiento',
                           birthDate == null
-                              ? ''
+                              ? '—'
                               : '${birthDate.day}/${birthDate.month}/${birthDate.year}',
+                          isDark,
+                          icon: Icons.cake,
                         ),
                       ],
                     ),
@@ -203,37 +220,36 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     );
   }
 
-  Widget _profileItem(BuildContext context, String label, String value) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
+  Widget _profileDataCard(
+    String label,
+    String value,
+    bool isDark, {
+    IconData? icon,
+  }) {
     return Card(
       color: isDark ? const Color(0xFF2C3550) : Colors.white,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       elevation: 2,
       margin: const EdgeInsets.only(bottom: 16),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              label,
-              style: TextStyle(
-                fontWeight: FontWeight.w600,
-                fontSize: 14,
-                color: isDark ? Colors.white70 : Colors.black54,
-              ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              value.isEmpty ? '—' : value,
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
-                color: isDark ? Colors.white : Colors.black87,
-              ),
-            ),
-          ],
+      child: ListTile(
+        leading: icon != null
+            ? Icon(icon, color: isDark ? Colors.white70 : Colors.black54)
+            : null,
+        title: Text(
+          value.isEmpty ? '—' : value,
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w500,
+            color: isDark ? Colors.white : Colors.black87,
+          ),
+        ),
+        subtitle: Text(
+          label,
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            color: isDark ? Colors.white70 : Colors.black54,
+          ),
         ),
       ),
     );
