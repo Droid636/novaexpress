@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/post.dart';
-import '../screens/post_detail_screen.dart';
+import 'post_detail_screen.dart';
 import '../app_theme.dart';
 
 class PostDetailModal extends StatelessWidget {
