@@ -2,6 +2,57 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/comment.dart';
 
 class CommentService {
+  Future<void> likeComment({
+    required String commentId,
+    required String userId,
+  }) async {
+    final docRef = _firestore.collection('comments').doc(commentId);
+    await _firestore.runTransaction((transaction) async {
+      final snapshot = await transaction.get(docRef);
+      if (!snapshot.exists) throw Exception('Comentario no encontrado');
+      final data = snapshot.data() as Map<String, dynamic>;
+      final likes = List<String>.from(data['likes'] ?? []);
+      final dislikes = List<String>.from(data['dislikes'] ?? []);
+      if (!likes.contains(userId)) likes.add(userId);
+      dislikes.remove(userId);
+      transaction.update(docRef, {'likes': likes, 'dislikes': dislikes});
+    });
+  }
+
+  Future<void> dislikeComment({
+    required String commentId,
+    required String userId,
+  }) async {
+    final docRef = _firestore.collection('comments').doc(commentId);
+    await _firestore.runTransaction((transaction) async {
+      final snapshot = await transaction.get(docRef);
+      if (!snapshot.exists) throw Exception('Comentario no encontrado');
+      final data = snapshot.data() as Map<String, dynamic>;
+      final likes = List<String>.from(data['likes'] ?? []);
+      final dislikes = List<String>.from(data['dislikes'] ?? []);
+      if (!dislikes.contains(userId)) dislikes.add(userId);
+      likes.remove(userId);
+      transaction.update(docRef, {'likes': likes, 'dislikes': dislikes});
+    });
+  }
+
+  Future<void> removeLikeDislike({
+    required String commentId,
+    required String userId,
+  }) async {
+    final docRef = _firestore.collection('comments').doc(commentId);
+    await _firestore.runTransaction((transaction) async {
+      final snapshot = await transaction.get(docRef);
+      if (!snapshot.exists) throw Exception('Comentario no encontrado');
+      final data = snapshot.data() as Map<String, dynamic>;
+      final likes = List<String>.from(data['likes'] ?? []);
+      final dislikes = List<String>.from(data['dislikes'] ?? []);
+      likes.remove(userId);
+      dislikes.remove(userId);
+      transaction.update(docRef, {'likes': likes, 'dislikes': dislikes});
+    });
+  }
+
   // Consistent method for CommentsSection
   Stream<List<Comment>> getComments(String postId) {
     return commentsForPost(postId);

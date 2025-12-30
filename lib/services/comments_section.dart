@@ -99,11 +99,86 @@ class _CommentsSectionState extends ConsumerState<CommentsSection> {
                               : AppTheme.bookmarksTitle,
                         ),
                       ),
-                      subtitle: Text(
-                        c.content,
-                        style: TextStyle(
-                          color: isDark ? Colors.white70 : Colors.black87,
-                        ),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            c.content,
+                            style: TextStyle(
+                              color: isDark ? Colors.white70 : Colors.black87,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Row(
+                            children: [
+                              GestureDetector(
+                                onTap: () async {
+                                  final userId = widget.userId;
+                                  if (c.likes.contains(userId)) {
+                                    await commentService.removeLikeDislike(
+                                      commentId: c.id,
+                                      userId: userId,
+                                    );
+                                  } else {
+                                    await commentService.likeComment(
+                                      commentId: c.id,
+                                      userId: userId,
+                                    );
+                                  }
+                                },
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      Icons.thumb_up,
+                                      size: 18,
+                                      color: c.likes.contains(widget.userId)
+                                          ? AppTheme.navSelected
+                                          : Colors.grey,
+                                    ),
+                                    const SizedBox(width: 2),
+                                    Text(
+                                      '${c.likes.length}',
+                                      style: TextStyle(fontSize: 13),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              GestureDetector(
+                                onTap: () async {
+                                  final userId = widget.userId;
+                                  if (c.dislikes.contains(userId)) {
+                                    await commentService.removeLikeDislike(
+                                      commentId: c.id,
+                                      userId: userId,
+                                    );
+                                  } else {
+                                    await commentService.dislikeComment(
+                                      commentId: c.id,
+                                      userId: userId,
+                                    );
+                                  }
+                                },
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      Icons.thumb_down,
+                                      size: 18,
+                                      color: c.dislikes.contains(widget.userId)
+                                          ? Colors.redAccent
+                                          : Colors.grey,
+                                    ),
+                                    const SizedBox(width: 2),
+                                    Text(
+                                      '${c.dislikes.length}',
+                                      style: TextStyle(fontSize: 13),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
                       trailing: c.userId == widget.userId
                           ? Row(

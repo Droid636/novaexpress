@@ -9,6 +9,8 @@ class Comment {
   final DateTime createdAt;
   DateTime? updatedAt;
   final String? profileImageUrl; // Added profileImageUrl field
+  final List<String> likes; // userIds que dieron like
+  final List<String> dislikes; // userIds que dieron dislike
 
   Comment({
     required this.id,
@@ -19,6 +21,8 @@ class Comment {
     required this.createdAt,
     this.updatedAt,
     this.profileImageUrl, // Added profileImageUrl to constructor
+    this.likes = const [],
+    this.dislikes = const [],
   });
 
   factory Comment.fromMap(Map<String, dynamic> map, String id) {
@@ -36,9 +40,10 @@ class Comment {
       content: map['content'] ?? '',
       createdAt: parseDate(map['createdAt']),
       updatedAt: map['updatedAt'] != null ? parseDate(map['updatedAt']) : null,
-      profileImageUrl:
-          map['profileImageUrl']
-              as String?, // Handle profileImageUrl in fromMap
+      profileImageUrl: map['profileImageUrl'] as String?,
+      likes: (map['likes'] as List?)?.map((e) => e as String).toList() ?? [],
+      dislikes:
+          (map['dislikes'] as List?)?.map((e) => e as String).toList() ?? [],
     );
   }
 
@@ -51,6 +56,8 @@ class Comment {
       'createdAt': createdAt,
       'updatedAt': updatedAt,
       'profileImageUrl': profileImageUrl, // Handle profileImageUrl in toMap
+      'likes': likes,
+      'dislikes': dislikes,
     };
   }
 }
