@@ -8,6 +8,7 @@ class Comment {
   String content;
   final DateTime createdAt;
   DateTime? updatedAt;
+  final String? profileImageUrl; // Added profileImageUrl field
 
   Comment({
     required this.id,
@@ -17,6 +18,7 @@ class Comment {
     required this.content,
     required this.createdAt,
     this.updatedAt,
+    this.profileImageUrl, // Added profileImageUrl to constructor
   });
 
   factory Comment.fromMap(Map<String, dynamic> map, String id) {
@@ -34,6 +36,9 @@ class Comment {
       content: map['content'] ?? '',
       createdAt: parseDate(map['createdAt']),
       updatedAt: map['updatedAt'] != null ? parseDate(map['updatedAt']) : null,
+      profileImageUrl:
+          map['profileImageUrl']
+              as String?, // Handle profileImageUrl in fromMap
     );
   }
 
@@ -45,6 +50,7 @@ class Comment {
       'content': content,
       'createdAt': createdAt,
       'updatedAt': updatedAt,
+      'profileImageUrl': profileImageUrl, // Handle profileImageUrl in toMap
     };
   }
 }

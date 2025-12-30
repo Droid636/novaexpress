@@ -2,6 +2,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/comment.dart';
 
 class CommentService {
+  // Consistent method for CommentsSection
+  Stream<List<Comment>> getComments(String postId) {
+    return commentsForPost(postId);
+  }
+
   final _firestore = FirebaseFirestore.instance;
 
   Stream<List<Comment>> commentsForPost(String postId) {
@@ -22,6 +27,7 @@ class CommentService {
     required String userId,
     required String userName,
     required String content,
+    String? profileImageUrl,
   }) async {
     if (content.trim().isEmpty) throw Exception('Comentario vacío');
     final comment = Comment(
@@ -31,6 +37,7 @@ class CommentService {
       userName: userName,
       content: content,
       createdAt: DateTime.now(),
+      profileImageUrl: profileImageUrl,
     );
     await _firestore.collection('comments').add(comment.toMap());
   }
