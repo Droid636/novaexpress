@@ -46,7 +46,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       appBar: AppBar(
         title: const Text('Mi perfil'),
         centerTitle: true,
-        backgroundColor: AppTheme.navBackground,
+        backgroundColor: isDark ? AppTheme.navBackground : AppTheme.navSelected,
+        elevation: 0,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
@@ -174,10 +175,18 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                                       );
                                     }
                                   },
-                                  icon: const Icon(Icons.edit),
+                                  icon: const Icon(Icons.edit, size: 20),
                                   label: const Text('Editar perfil'),
                                   style: ElevatedButton.styleFrom(
+                                    // Usamos el azul principal de tu tema
                                     backgroundColor: AppTheme.navSelected,
+                                    // Forzamos blanco para texto e icono, asegurando visibilidad
+                                    foregroundColor: Colors.white,
+                                    elevation: isDark ? 0 : 3,
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 20,
+                                      vertical: 12,
+                                    ),
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(12),
                                     ),

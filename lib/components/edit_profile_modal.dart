@@ -11,9 +11,11 @@ Future<bool?> showEditProfileModal(
   Map<String, dynamic> data,
 ) {
   final nameController = TextEditingController(text: data['name'] ?? '');
-  final lastNameController = TextEditingController(text: data['lastName'] ?? '');
+  final lastNameController = TextEditingController(
+    text: data['lastName'] ?? '',
+  );
   final phoneController = TextEditingController(text: data['phone'] ?? '');
-  
+
   DateTime? birthDate = data['birthDate'] != null
       ? (data['birthDate'] as Timestamp).toDate()
       : null;
@@ -79,15 +81,15 @@ Future<bool?> showEditProfileModal(
                   .collection('users')
                   .doc(user.uid)
                   .update({
-                'name': nameController.text.trim(),
-                'lastName': lastNameController.text.trim(),
-                'phone': phoneController.text.trim(),
-                'birthDate': birthDate == null
-                    ? null
-                    : Timestamp.fromDate(birthDate!),
-                'profileImage': profileImageUrl,
-                'updatedAt': FieldValue.serverTimestamp(),
-              });
+                    'name': nameController.text.trim(),
+                    'lastName': lastNameController.text.trim(),
+                    'phone': phoneController.text.trim(),
+                    'birthDate': birthDate == null
+                        ? null
+                        : Timestamp.fromDate(birthDate!),
+                    'profileImage': profileImageUrl,
+                    'updatedAt': FieldValue.serverTimestamp(),
+                  });
 
               await user.updateDisplayName(
                 '${nameController.text.trim()} ${lastNameController.text.trim()}',
@@ -138,16 +140,19 @@ Future<bool?> showEditProfileModal(
                           backgroundImage: selectedImage != null
                               ? FileImage(selectedImage!)
                               : (data['profileImage'] != null &&
-                                      data['profileImage'].toString().isNotEmpty)
-                                  ? NetworkImage(data['profileImage'])
-                                  : null,
-                          child: selectedImage == null &&
+                                    data['profileImage'].toString().isNotEmpty)
+                              ? NetworkImage(data['profileImage'])
+                              : null,
+                          child:
+                              selectedImage == null &&
                                   (data['profileImage'] == null ||
                                       data['profileImage'].toString().isEmpty)
                               ? Icon(
                                   Icons.camera_alt,
                                   size: 36,
-                                  color: isDark ? Colors.white70 : Colors.grey[700],
+                                  color: isDark
+                                      ? Colors.white70
+                                      : Colors.grey[700],
                                 )
                               : null,
                         ),
@@ -167,9 +172,17 @@ Future<bool?> showEditProfileModal(
                       const SizedBox(height: 24),
 
                       // Campos alineados a la izquierda
-                      _buildLeftAlignedTextField('Nombre', nameController, isDark),
+                      _buildLeftAlignedTextField(
+                        'Nombre',
+                        nameController,
+                        isDark,
+                      ),
                       const SizedBox(height: 16),
-                      _buildLeftAlignedTextField('Apellido', lastNameController, isDark),
+                      _buildLeftAlignedTextField(
+                        'Apellido',
+                        lastNameController,
+                        isDark,
+                      ),
                       const SizedBox(height: 16),
                       _buildLeftAlignedTextField(
                         'Teléfono',
@@ -181,7 +194,8 @@ Future<bool?> showEditProfileModal(
                       TextField(
                         controller: birthDateController,
                         readOnly: true,
-                        textAlign: TextAlign.start, // ← fecha alineada a la izquierda
+                        textAlign:
+                            TextAlign.start, // ← fecha alineada a la izquierda
                         decoration: InputDecoration(
                           labelText: 'Fecha de nacimiento',
                           labelStyle: TextStyle(
@@ -207,7 +221,9 @@ Future<bool?> showEditProfileModal(
                             ),
                           ),
                           filled: true,
-                          fillColor: isDark ? const Color(0xFF2C3550) : Colors.white,
+                          fillColor: isDark
+                              ? const Color(0xFF2C3550)
+                              : Colors.white,
                         ),
                         onTap: () async {
                           final date = await showDatePicker(
@@ -225,21 +241,31 @@ Future<bool?> showEditProfileModal(
                         },
                       ),
                       const SizedBox(height: 24),
-
                       SizedBox(
                         width: double.infinity,
                         height: 50,
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
+                            // Mantenemos navSelected en ambos, pero ajustamos la intensidad si es necesario
                             backgroundColor: AppTheme.navSelected,
+                            foregroundColor: Colors.white,
+                            elevation: isDark
+                                ? 0
+                                : 2, // Menos sombra en dark para un look más moderno
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
                           ),
                           onPressed: loading ? null : saveChanges,
                           child: loading
-                              ? const CircularProgressIndicator(
-                                  color: Colors.white,
+                              ? const SizedBox(
+                                  height: 24,
+                                  width: 24,
+                                  child: CircularProgressIndicator(
+                                    color: Colors.white,
+                                    strokeWidth:
+                                        2, // Más fino para que quepa bien en el botón
+                                  ),
                                 )
                               : const Text(
                                   'Guardar cambios',
