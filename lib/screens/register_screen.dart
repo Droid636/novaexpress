@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../utils/validators.dart';
 import '../services/auth_providers.dart';
@@ -12,7 +13,7 @@ class RegisterScreen extends ConsumerStatefulWidget {
 }
 
 class _RegisterScreenState extends ConsumerState<RegisterScreen> {
-    bool _showPassword = false;
+  bool _showPassword = false;
   final _formKey = GlobalKey<FormState>();
 
   final _nameController = TextEditingController();
@@ -97,7 +98,25 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
+    // --- LÓGICA DE COLORES BASADA EN TU LOGIN ---
+    final backgroundStartColor = isDarkMode
+        ? AppTheme.navBackground
+        : AppTheme.splashBackgroundBottom;
+    final backgroundEndColor = isDarkMode
+        ? AppTheme.navSelected.withOpacity(0.7)
+        : AppTheme.navSelected.withOpacity(0.7);
+
+    final cardBackgroundColor = isDarkMode
+        ? AppTheme.navBackground.withOpacity(0.6)
+        : Colors.white.withOpacity(0.5);
+    final cardBorderColor = isDarkMode
+        ? AppTheme.navSelected.withOpacity(0.5)
+        : AppTheme.searchBorder.withOpacity(0.7);
+    final textColor = isDarkMode ? Colors.white : AppTheme.categoryChipText;
+    final hintColor = isDarkMode ? AppTheme.navUnselected : AppTheme.searchHint;
+    final iconColor = isDarkMode ? Colors.white : AppTheme.categoryChipText;
 
     return Scaffold(
       extendBodyBehindAppBar: true,
@@ -105,6 +124,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
         title: const SizedBox.shrink(),
         backgroundColor: Colors.transparent,
         elevation: 0,
+        iconTheme: IconThemeData(color: iconColor),
       ),
       body: Container(
         width: double.infinity,
@@ -113,55 +133,58 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [AppTheme.navBackground, AppTheme.navSelected],
+            colors: [backgroundStartColor, backgroundEndColor],
           ),
         ),
         child: Center(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 60),
             child: Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: isDark
-                    ? AppTheme.navBackground.withOpacity(0.9)
-                    : Colors.white,
+                color: cardBackgroundColor,
                 borderRadius: BorderRadius.circular(28),
+                border: Border.all(color: cardBorderColor, width: 1.5),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(isDarkMode ? 0.3 : 0.1),
+                    blurRadius: 20,
+                    offset: const Offset(0, 10),
+                  ),
+                ],
               ),
               child: Form(
                 key: _formKey,
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(
-                      Icons.person_add_alt_1,
-                      color: isDark ? Colors.white : AppTheme.categoryChipText,
-                      size: 80,
-                    ),
-                    const SizedBox(height: 16),
+                    Icon(Icons.person_add_alt_1, color: iconColor, size: 70),
+                    const SizedBox(height: 12),
                     Text(
                       'Crear cuenta',
                       style: TextStyle(
-                        fontSize: 28,
+                        fontSize: 26,
                         fontWeight: FontWeight.bold,
-                        color: isDark
-                            ? Colors.white
-                            : AppTheme.categoryChipText,
+                        color: textColor,
                       ),
                     ),
-                    const SizedBox(height: 20),
-
+                    const SizedBox(height: 24),
                     _buildTextField(
                       controller: _nameController,
                       label: 'Nombre',
                       validator: Validators.name,
-                      isDark: isDark,
+                      textColor: textColor,
+                      hintColor: hintColor,
+                      isDarkMode: isDarkMode,
                     ),
                     const SizedBox(height: 16),
                     _buildTextField(
                       controller: _lastNameController,
                       label: 'Apellido',
                       validator: Validators.name,
-                      isDark: isDark,
+                      textColor: textColor,
+                      hintColor: hintColor,
+                      isDarkMode: isDarkMode,
                     ),
                     const SizedBox(height: 16),
                     _buildTextField(
@@ -169,7 +192,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                       label: 'Correo',
                       validator: Validators.email,
                       keyboardType: TextInputType.emailAddress,
-                      isDark: isDark,
+                      textColor: textColor,
+                      hintColor: hintColor,
+                      isDarkMode: isDarkMode,
                     ),
                     const SizedBox(height: 16),
                     _buildTextField(
@@ -177,10 +202,11 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                       label: 'Teléfono',
                       validator: Validators.phone,
                       keyboardType: TextInputType.phone,
-                      isDark: isDark,
+                      textColor: textColor,
+                      hintColor: hintColor,
+                      isDarkMode: isDarkMode,
                     ),
                     const SizedBox(height: 16),
-
                     GestureDetector(
                       onTap: () async {
                         final date = await showDatePicker(
@@ -197,7 +223,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                             text: _birthDate == null ? "" : _birthDateText(),
                           ),
                           label: 'Fecha de nacimiento',
-                          isDark: isDark,
+                          textColor: textColor,
+                          hintColor: hintColor,
+                          isDarkMode: isDarkMode,
                           validator: (_) =>
                               _birthDate == null ? 'Requerido' : null,
                         ),
@@ -209,11 +237,15 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                       label: 'Contraseña',
                       validator: Validators.password,
                       obscureText: !_showPassword,
-                      isDark: isDark,
+                      textColor: textColor,
+                      hintColor: hintColor,
+                      isDarkMode: isDarkMode,
                       suffixIcon: IconButton(
                         icon: Icon(
-                          _showPassword ? Icons.visibility : Icons.visibility_off,
-                          color: isDark ? Colors.white70 : Colors.grey,
+                          _showPassword
+                              ? Icons.visibility
+                              : Icons.visibility_off,
+                          color: hintColor,
                         ),
                         onPressed: () {
                           setState(() {
@@ -223,7 +255,6 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                       ),
                     ),
                     const SizedBox(height: 30),
-
                     _isLoading
                         ? const CircularProgressIndicator()
                         : SizedBox(
@@ -233,6 +264,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: AppTheme.navSelected,
                                 foregroundColor: Colors.white,
+                                elevation: 0,
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(16),
                                 ),
@@ -247,13 +279,18 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                               ),
                             ),
                           ),
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 16),
                     TextButton(
                       onPressed: () =>
                           Navigator.of(context).pushReplacementNamed('/login'),
                       child: Text(
                         '¿Ya tienes cuenta? Inicia sesión',
-                        style: TextStyle(color: AppTheme.navSelected),
+                        style: TextStyle(
+                          color: isDarkMode
+                              ? AppTheme.navUnselected
+                              : AppTheme.navSelected,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
                   ],
@@ -269,7 +306,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   Widget _buildTextField({
     required TextEditingController controller,
     required String label,
-    required bool isDark,
+    required Color textColor,
+    required Color hintColor,
+    required bool isDarkMode,
     String? Function(String?)? validator,
     TextInputType keyboardType = TextInputType.text,
     bool obscureText = false,
@@ -280,22 +319,33 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       validator: validator,
       keyboardType: keyboardType,
       obscureText: obscureText,
-      style: TextStyle(
-        color: isDark ? Colors.white : AppTheme.categoryChipText,
-      ),
+      style: TextStyle(color: textColor),
       decoration: InputDecoration(
         labelText: label,
+        labelStyle: TextStyle(color: hintColor),
         filled: true,
-        fillColor: isDark
-            ? Colors.white.withOpacity(0.05)
-            : Colors.grey.shade100,
+        fillColor: isDarkMode ? Colors.white.withOpacity(0.1) : Colors.white,
         contentPadding: const EdgeInsets.symmetric(
           vertical: 16,
           horizontal: 20,
         ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide.none,
+          borderSide: BorderSide(
+            color: isDarkMode ? Colors.white24 : AppTheme.navSelected,
+          ),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide(
+            color: isDarkMode
+                ? Colors.white10
+                : AppTheme.searchBorder.withOpacity(0.5),
+          ),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: const BorderSide(color: AppTheme.navSelected, width: 1.5),
         ),
         suffixIcon: suffixIcon,
       ),
