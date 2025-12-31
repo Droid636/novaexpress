@@ -5,6 +5,7 @@ import '../helpers/theme_mode_provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../screens/notification_topics_screen.dart';
 
 class ThemeMenuButton extends ConsumerWidget {
   const ThemeMenuButton({super.key});
@@ -153,6 +154,42 @@ class ThemeMenuButton extends ConsumerWidget {
                       );
                       Navigator.pop(context);
                     },
+                  ),
+
+                  // Opción: Notificaciones por categoría
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
+                    child: SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: isDark
+                              ? Colors.blueGrey[800]
+                              : Colors.blueAccent,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        icon: const Icon(Icons.notifications_active_outlined),
+                        label: const Text(
+                          'Notificaciones por categoría',
+                          style: TextStyle(fontSize: 16),
+                        ),
+                        onPressed: () {
+                          Navigator.pop(context);
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => const NotificationTopicsScreen(),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
                   ),
 
                   // Opción: Perfil
