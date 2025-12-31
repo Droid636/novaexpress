@@ -157,39 +157,20 @@ class ThemeMenuButton extends ConsumerWidget {
                   ),
 
                   // Opción: Notificaciones por categoría
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 8,
-                    ),
-                    child: SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton.icon(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: isDark
-                              ? Colors.blueGrey[800]
-                              : Colors.blueAccent,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
+                  _buildOption(
+                    context,
+                    isDark: isDark,
+                    icon: Icons.notifications_active_outlined,
+                    label: 'Notificaciones por categoría',
+                    iconColor: Colors.blueAccent,
+                    onTap: () {
+                      Navigator.pop(context);
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => const NotificationTopicsScreen(),
                         ),
-                        icon: const Icon(Icons.notifications_active_outlined),
-                        label: const Text(
-                          'Notificaciones por categoría',
-                          style: TextStyle(fontSize: 16),
-                        ),
-                        onPressed: () {
-                          Navigator.pop(context);
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (_) => const NotificationTopicsScreen(),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
+                      );
+                    },
                   ),
 
                   // Opción: Perfil
