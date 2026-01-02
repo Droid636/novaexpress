@@ -144,9 +144,31 @@ class _NotificationTopicsScreenState
                                   await NotificationService().subscribeToTopic(
                                     topic,
                                   );
+                                  // Mostrar notificación local
+                                  if (context.mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                          'Suscrito a notificaciones de ${cat.name}',
+                                        ),
+                                        duration: const Duration(seconds: 2),
+                                      ),
+                                    );
+                                  }
                                 } else {
                                   await NotificationService()
                                       .unsubscribeFromTopic(topic);
+                                  // Mostrar notificación local
+                                  if (context.mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                          'Notificaciones de ${cat.name} desactivadas',
+                                        ),
+                                        duration: const Duration(seconds: 2),
+                                      ),
+                                    );
+                                  }
                                 }
                                 _refresh();
                               },

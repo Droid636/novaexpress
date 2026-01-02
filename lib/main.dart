@@ -14,6 +14,7 @@ import 'app_theme.dart';
 import 'helpers/theme_mode_provider.dart';
 import 'firebase_options.dart';
 import 'services/favorites_cache_service.dart';
+
 import 'package:firebase_messaging/firebase_messaging.dart';
 
 void main() async {
@@ -30,8 +31,16 @@ void main() async {
   await FavoritesCacheService.init();
 
   // Inicializar notificaciones en primer plano
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   runApp(const ProviderScope(child: MyApp()));
   _setupFirebaseMessagingHandler();
+}
+
+/// Handler para notificaciones push en segundo plano o cuando la app está terminada
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp();
+  // Aquí puedes mostrar una notificación local o hacer logging
+  // print('Notificación push recibida en background: \\${message.messageId}');
 }
 
 void _setupFirebaseMessagingHandler() {
@@ -40,6 +49,8 @@ void _setupFirebaseMessagingHandler() {
   // import 'package:firebase_messaging/firebase_messaging.dart';
   // ignore: avoid_print
   FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+    print('[FCM] Mensaje recibido: ${message.data}');
+    print('[FCM] Notificación: ${message.notification}');
     // Mostrar SnackBar con el título y cuerpo de la notificación
     final navigator = navigatorKey.currentState;
     if (navigator != null && message.notification != null) {

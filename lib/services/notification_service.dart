@@ -21,20 +21,34 @@ class NotificationService {
   Future<void> subscribeToTopic(String topic) async {
     final topics = await getSubscribedTopics();
     if (!topics.contains(topic)) {
+      print('[NotificationService] Suscribiéndose al tópico: $topic');
       await _messaging.subscribeToTopic(topic);
+      print(
+        '[NotificationService] Llamada a FirebaseMessaging.subscribeToTopic($topic) realizada',
+      );
       topics.add(topic);
       final prefs = await SharedPreferences.getInstance();
       await prefs.setStringList(_prefsKey, topics);
+      print('[NotificationService] Tópicos suscritos actualizados: $topics');
+    } else {
+      print('[NotificationService] Ya estaba suscrito al tópico: $topic');
     }
   }
 
   Future<void> unsubscribeFromTopic(String topic) async {
     final topics = await getSubscribedTopics();
     if (topics.contains(topic)) {
+      print('[NotificationService] Desuscribiéndose del tópico: $topic');
       await _messaging.unsubscribeFromTopic(topic);
+      print(
+        '[NotificationService] Llamada a FirebaseMessaging.unsubscribeFromTopic($topic) realizada',
+      );
       topics.remove(topic);
       final prefs = await SharedPreferences.getInstance();
       await prefs.setStringList(_prefsKey, topics);
+      print('[NotificationService] Tópicos suscritos actualizados: $topics');
+    } else {
+      print('[NotificationService] No estaba suscrito al tópico: $topic');
     }
   }
 
@@ -42,15 +56,22 @@ class NotificationService {
     final current = await getSubscribedTopics();
     for (final t in current) {
       if (!topics.contains(t)) {
+        print(
+          '[NotificationService] Desuscribiéndose del tópico (setTopics): $t',
+        );
         await _messaging.unsubscribeFromTopic(t);
       }
     }
     for (final t in topics) {
       if (!current.contains(t)) {
+        print('[NotificationService] Suscribiéndose al tópico (setTopics): $t');
         await _messaging.subscribeToTopic(t);
       }
     }
     final prefs = await SharedPreferences.getInstance();
     await prefs.setStringList(_prefsKey, topics);
+    print(
+      '[NotificationService] Tópicos suscritos actualizados (setTopics): $topics',
+    );
   }
 }
