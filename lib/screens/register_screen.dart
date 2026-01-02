@@ -72,7 +72,8 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
         Navigator.of(context).pushReplacementNamed('/login');
       }
     } catch (e) {
-      String errorMessage = 'No pudimos crear tu cuenta. Por favor, revisa tus datos e inténtalo de nuevo.';
+      String errorMessage =
+          'No pudimos crear tu cuenta. Por favor, revisa tus datos e inténtalo de nuevo.';
       await showDialog(
         context: context,
         builder: (ctx) => AlertDialog(
