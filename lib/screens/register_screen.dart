@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../utils/validators.dart';
 import '../services/auth_providers.dart';
@@ -73,11 +72,12 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
         Navigator.of(context).pushReplacementNamed('/login');
       }
     } catch (e) {
+      String errorMessage = 'No pudimos crear tu cuenta. Por favor, revisa tus datos e inténtalo de nuevo.';
       await showDialog(
         context: context,
         builder: (ctx) => AlertDialog(
-          title: const Text('Error'),
-          content: Text('No se pudo crear la cuenta.\n$e'),
+          title: const Text('¡Ups!'),
+          content: Text(errorMessage),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(ctx).pop(),

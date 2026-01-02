@@ -58,11 +58,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         Navigator.of(context).pushReplacementNamed('/home');
       }
     } catch (e) {
+      String errorMessage = 'No pudimos iniciar sesión. Por favor, revisa tu correo y contraseña e inténtalo de nuevo.';
       await showDialog(
         context: context,
         builder: (ctx) => AlertDialog(
-          title: const Text('Error'),
-          content: Text('No se pudo iniciar sesión.\n$e'),
+          title: const Text('¡Ups!'),
+          content: Text(errorMessage),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(ctx).pop(),
