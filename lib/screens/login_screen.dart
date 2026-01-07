@@ -14,6 +14,14 @@ class LoginScreen extends ConsumerStatefulWidget {
 }
 
 class _LoginScreenState extends ConsumerState<LoginScreen> {
+  Future<void> _guestLogin() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('isLoggedIn', true);
+    await prefs.setBool('isGuest', true);
+    if (!mounted) return;
+    Navigator.of(context).pushReplacementNamed('/home');
+  }
+
   bool _showPassword = false;
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
@@ -284,6 +292,31 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                 ),
                               ),
                             ),
+                      const SizedBox(height: 12),
+                      SizedBox(
+                        width: double.infinity,
+                        height: 48,
+                        child: OutlinedButton(
+                          onPressed: _guestLogin,
+                          style: OutlinedButton.styleFrom(
+                            side: BorderSide(
+                              color: secondaryButtonColor,
+                              width: 2,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12.0),
+                            ),
+                          ),
+                          child: Text(
+                            'Entrar como invitado',
+                            style: TextStyle(
+                              color: secondaryButtonColor,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
                       const SizedBox(height: 20),
                       TextButton(
                         onPressed: () {
