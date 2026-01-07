@@ -17,6 +17,111 @@ class FavoritesScreen extends ConsumerWidget {
 
     final postsAsync = ref.watch(favoritePostsProvider);
     final Set<int> bookmarkedIds = ref.watch(bookmarksProvider);
+    final user = ref.watch(authUserProvider).asData?.value;
+    final isGuest = user == null;
+
+    if (isGuest) {
+      return Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: isDark
+                ? [
+                    AppTheme.splashBackgroundTop,
+                    AppTheme.splashBackgroundBottom,
+                  ]
+                : [AppTheme.categoryBackground, AppTheme.categoryBackground],
+          ),
+        ),
+        child: Scaffold(
+          backgroundColor: Colors.transparent,
+          appBar: AppBar(
+            centerTitle: true,
+            systemOverlayStyle: isDark
+                ? SystemUiOverlayStyle.light.copyWith(
+                    statusBarColor: Colors.transparent,
+                    statusBarIconBrightness: Brightness.light,
+                    statusBarBrightness: Brightness.dark,
+                  )
+                : SystemUiOverlayStyle.dark.copyWith(
+                    statusBarColor: Colors.transparent,
+                    statusBarIconBrightness: Brightness.dark,
+                    statusBarBrightness: Brightness.light,
+                  ),
+            title: Text(
+              'Favoritos',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 32,
+                color: isDark ? Colors.white : AppTheme.navBackground,
+              ),
+            ),
+            backgroundColor: Colors.transparent,
+            foregroundColor: isDark ? Colors.white : AppTheme.navBackground,
+            elevation: 0,
+          ),
+          body: Center(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 32.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.lock_outline,
+                    size: 64,
+                    color: isDark
+                        ? AppTheme.splashSubtitle
+                        : AppTheme.navSelected,
+                  ),
+                  const SizedBox(height: 18),
+                  Text(
+                    'Inicia sesión o regístrate para guardar tus noticias favoritas y acceder a más funciones.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      color: isDark ? Colors.white : Color(0xFF222B45),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppTheme.navSelected,
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        onPressed: () =>
+                            Navigator.of(context).pushNamed('/login'),
+                        child: const Text('Iniciar sesión'),
+                      ),
+                      const SizedBox(width: 16),
+                      OutlinedButton(
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: AppTheme.navSelected,
+                          side: BorderSide(color: AppTheme.navSelected),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        onPressed: () =>
+                            Navigator.of(context).pushNamed('/register'),
+                        child: const Text('Registrarse'),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+    }
 
     return Container(
       decoration: BoxDecoration(
@@ -30,8 +135,6 @@ class FavoritesScreen extends ConsumerWidget {
       ),
       child: Scaffold(
         backgroundColor: Colors.transparent,
-
-        // ✅ STATUS BAR CONTROLADO AQUÍ (FORMA CORRECTA)
         appBar: AppBar(
           centerTitle: true,
           systemOverlayStyle: isDark
@@ -57,7 +160,6 @@ class FavoritesScreen extends ConsumerWidget {
           foregroundColor: isDark ? Colors.white : AppTheme.navBackground,
           elevation: 0,
         ),
-
         body: _FavoritesBody(
           postsAsync: postsAsync,
           bookmarkedIds: bookmarkedIds,
