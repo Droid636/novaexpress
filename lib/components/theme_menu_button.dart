@@ -20,9 +20,9 @@ class ThemeMenuButton extends ConsumerWidget {
       icon: const Icon(Icons.more_vert),
       onPressed: () {
         final user = FirebaseAuth.instance.currentUser;
+
         showModalBottomSheet(
           context: context,
-          // Fondo del modal adaptativo
           backgroundColor: isDark ? AppTheme.navBackground : Colors.white,
           shape: const RoundedRectangleBorder(
             borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
@@ -33,7 +33,7 @@ class ThemeMenuButton extends ConsumerWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // Indicador visual superior (drag handle)
+                  // Drag handle
                   Container(
                     width: 40,
                     height: 4,
@@ -44,6 +44,9 @@ class ThemeMenuButton extends ConsumerWidget {
                     ),
                   ),
 
+                  // ===============================
+                  // PERFIL (solo autenticado)
+                  // ===============================
                   if (user != null) ...[
                     FutureBuilder<DocumentSnapshot>(
                       future: FirebaseFirestore.instance
@@ -65,9 +68,12 @@ class ThemeMenuButton extends ConsumerWidget {
                           }
                         }
 
-                        // Fallback a Firebase Auth si Firestore está vacío
-                        if (name.isEmpty) name = user.displayName ?? 'Usuario';
-                        if (photoURL.isEmpty) photoURL = user.photoURL ?? '';
+                        if (name.isEmpty) {
+                          name = user.displayName ?? 'Usuario';
+                        }
+                        if (photoURL.isEmpty) {
+                          photoURL = user.photoURL ?? '';
+                        }
 
                         return Padding(
                           padding: const EdgeInsets.symmetric(
@@ -137,7 +143,9 @@ class ThemeMenuButton extends ConsumerWidget {
                     const Divider(indent: 15, endIndent: 15),
                   ],
 
-                  // Opción: Tema
+                  // ===============================
+                  // TEMA (todos)
+                  // ===============================
                   _buildOption(
                     context,
                     isDark: isDark,
@@ -156,50 +164,67 @@ class ThemeMenuButton extends ConsumerWidget {
                     },
                   ),
 
-                  // Opción: Notificaciones por categoría
-                  _buildOption(
-                    context,
-                    isDark: isDark,
-                    icon: Icons.notifications_active_outlined,
-                    label: 'Notificaciones por categoría',
-                    iconColor: Colors.blueAccent,
-                    onTap: () {
-                      Navigator.pop(context);
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (_) => const NotificationTopicsScreen(),
-                        ),
-                      );
-                    },
-                  ),
+                  // ===============================
+                  // NOTIFICACIONES (solo autenticado)
+                  // ===============================
+                  if (user != null)
+                    _buildOption(
+                      context,
+                      isDark: isDark,
+                      icon: Icons.notifications_active_outlined,
+                      label: 'Notificaciones por categoría',
+                      iconColor: Colors.blueAccent,
+                      onTap: () {
+                        Navigator.pop(context);
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => const NotificationTopicsScreen(),
+                          ),
+                        );
+                      },
+                    ),
 
-                  // Opción: Perfil
-                  _buildOption(
-                    context,
-                    isDark: isDark,
-                    icon: Icons.account_circle_outlined,
-                    label: 'Mi perfil',
-                    iconColor: AppTheme.navSelected,
-                    onTap: () {
-                      Navigator.pop(context);
-                      Navigator.of(context).pushNamed('/profile');
-                    },
-                  ),
-
-                  const Divider(indent: 15, endIndent: 15),
-
-                  // Opción: Cerrar Sesión
-                  _buildOption(
-                    context,
-                    isDark: isDark,
-                    icon: Icons.logout_rounded,
-                    label: 'Cerrar sesión',
-                    iconColor: Colors.redAccent,
-                    onTap: () async {
-                      Navigator.pop(context);
-                      await _handleSignOut(context);
-                    },
-                  ),
+                  // ===============================
+                  // OPCIONES SEGÚN ESTADO
+                  // ===============================
+                  if (user != null) ...[
+                    _buildOption(
+                      context,
+                      isDark: isDark,
+                      icon: Icons.account_circle_outlined,
+                      label: 'Mi perfil',
+                      iconColor: AppTheme.navSelected,
+                      onTap: () {
+                        Navigator.pop(context);
+                        Navigator.of(context).pushNamed('/profile');
+                      },
+                    ),
+                    const Divider(indent: 15, endIndent: 15),
+                    _buildOption(
+                      context,
+                      isDark: isDark,
+                      icon: Icons.logout_rounded,
+                      label: 'Cerrar sesión',
+                      iconColor: Colors.redAccent,
+                      onTap: () async {
+                        Navigator.pop(context);
+                        await _handleSignOut(context);
+                      },
+                    ),
+                  ] else ...[
+                    const Divider(indent: 15, endIndent: 15),
+                    _buildOption(
+                      context,
+                      isDark: isDark,
+                      icon: Icons.login_rounded,
+                      label: 'Regístrate o inicia sesión',
+                      iconColor: AppTheme.navSelected,
+                      onTap: () {
+                        Navigator.pop(context);
+                        Navigator.of(context).pushNamed('/login');
+                      },
+                    ),
+                  ],
                 ],
               ),
             );
@@ -209,7 +234,9 @@ class ThemeMenuButton extends ConsumerWidget {
     );
   }
 
-  // Widget auxiliar para las opciones del menú
+  // ===============================
+  // OPCIÓN REUTILIZABLE
+  // ===============================
   Widget _buildOption(
     BuildContext context, {
     required bool isDark,
@@ -238,11 +265,15 @@ class ThemeMenuButton extends ConsumerWidget {
     );
   }
 
+  // ===============================
+  // LOGOUT
+  // ===============================
   Future<void> _handleSignOut(BuildContext context) async {
     try {
       await FirebaseAuth.instance.signOut();
       final prefs = await SharedPreferences.getInstance();
       await prefs.remove('isLoggedIn');
+
       if (context.mounted) {
         Navigator.of(
           context,

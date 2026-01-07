@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import '../helpers/bookmarks_provider.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
+import '../helpers/bookmarks_provider.dart';
 import '../models/post.dart';
 import 'post_detail_modal.dart';
 import '../app_theme.dart';
@@ -19,6 +20,9 @@ class PostCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    // 🔒 Detectar modo invitado
+    final isGuest = FirebaseAuth.instance.currentUser == null;
 
     final dateStr = DateFormat(
       'dd/MM/yyyy',
@@ -62,26 +66,29 @@ class PostCard extends ConsumerWidget {
                 if (showImage) _buildImage(isDark),
                 if (showImage) const SizedBox(width: 16),
                 Expanded(child: _buildInfo(dateStr, isDark)),
-                IconButton(
-                  icon: Icon(
-                    isBookmarked ? Icons.bookmark : Icons.bookmark_border,
-                    color: isBookmarked
-                        ? AppTheme.navSelected
-                        : isDark
-                        ? Colors.white54
-                        : AppTheme.bookmarksSubtitle.withOpacity(0.4),
+
+                // ⭐ Botón de favoritos SOLO si NO es invitado
+                if (!isGuest)
+                  IconButton(
+                    icon: Icon(
+                      isBookmarked ? Icons.bookmark : Icons.bookmark_border,
+                      color: isBookmarked
+                          ? AppTheme.navSelected
+                          : isDark
+                          ? Colors.white54
+                          : AppTheme.bookmarksSubtitle.withOpacity(0.4),
+                    ),
+                    onPressed: () async {
+                      final notifier = ref.read(bookmarksProvider.notifier);
+                      if (isBookmarked) {
+                        await notifier.removeBookmark(post);
+                        _snack(context, 'Eliminado de favoritos.');
+                      } else {
+                        await notifier.addBookmark(post);
+                        _snack(context, 'Agregado a favoritos.');
+                      }
+                    },
                   ),
-                  onPressed: () async {
-                    final notifier = ref.read(bookmarksProvider.notifier);
-                    if (isBookmarked) {
-                      await notifier.removeBookmark(post);
-                      _snack(context, 'Eliminado de favoritos.');
-                    } else {
-                      await notifier.addBookmark(post);
-                      _snack(context, 'Agregado a favoritos.');
-                    }
-                  },
-                ),
               ],
             ),
           ),
