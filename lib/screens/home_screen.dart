@@ -105,19 +105,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               ),
               const SizedBox(height: 22),
 
-              NewsSearchBar(
-                initialValue: _lastSearch,
-                onSearch: (query) => setState(() => _lastSearch = query),
-                onChanged: (query) {
-                  _debounce?.cancel();
-                  _debounce = Timer(
-                    const Duration(milliseconds: 400),
-                    () => setState(() => _lastSearch = query),
-                  );
-                },
-              ),
-              const SizedBox(height: 22),
-
               ClipRRect(
                 borderRadius: BorderRadius.circular(18),
                 child: Image.asset(
@@ -128,52 +115,87 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 ),
               ),
 
+              const SizedBox(height: 22),
               postsAsync.when(
                 data: (posts) {
-                  if (posts.isEmpty) {
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 40),
-                      child: Text(
-                        _lastSearch != null && _lastSearch!.isNotEmpty
-                            ? 'No se encontraron noticias para "$_lastSearch".'
-                            : 'No hay noticias disponibles.',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: isDark
-                              ? AppTheme.navUnselected
-                              : AppTheme.bookmarksTitle.withOpacity(0.7),
-                        ),
-                      ),
-                    );
-                  }
-
-                  return ListView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: posts.length,
-                    itemBuilder: (context, index) {
-                      final post = posts[index];
-                      return TweenAnimationBuilder<double>(
-                        tween: Tween(begin: 0, end: 1),
-                        duration: Duration(milliseconds: 400 + index * 40),
-                        builder: (_, value, child) {
-                          return Opacity(
-                            opacity: value,
-                            child: Transform.translate(
-                              offset: Offset(0, 20 * (1 - value)),
-                              child: child,
-                            ),
+                  return Column(
+                    children: [
+                      NewsSearchBar(
+                        initialValue: _lastSearch,
+                        onSearch: (query) =>
+                            setState(() => _lastSearch = query),
+                        onChanged: (query) {
+                          _debounce?.cancel();
+                          _debounce = Timer(
+                            const Duration(milliseconds: 400),
+                            () => setState(() => _lastSearch = query),
                           );
                         },
-                        child: PostCard(post: post),
-                      );
-                    },
+                      ),
+
+                      if (posts.isEmpty)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 40),
+                          child: Text(
+                            _lastSearch != null && _lastSearch!.isNotEmpty
+                                ? 'No se encontraron noticias para "$_lastSearch".'
+                                : 'No hay noticias disponibles.',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: isDark
+                                  ? AppTheme.navUnselected
+                                  : AppTheme.bookmarksTitle.withOpacity(0.7),
+                            ),
+                          ),
+                        )
+                      else
+                        ListView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: posts.length,
+                          itemBuilder: (context, index) {
+                            final post = posts[index];
+                            return TweenAnimationBuilder<double>(
+                              tween: Tween(begin: 0, end: 1),
+                              duration: Duration(
+                                milliseconds: 400 + index * 40,
+                              ),
+                              builder: (_, value, child) {
+                                return Opacity(
+                                  opacity: value,
+                                  child: Transform.translate(
+                                    offset: Offset(0, 20 * (1 - value)),
+                                    child: child,
+                                  ),
+                                );
+                              },
+                              child: PostCard(post: post),
+                            );
+                          },
+                        ),
+                    ],
                   );
                 },
-                loading: () => const Padding(
-                  padding: EdgeInsets.only(top: 32),
-                  child: _CustomLoader(),
+                loading: () => Column(
+                  children: [
+                    NewsSearchBar(
+                      initialValue: _lastSearch,
+                      onSearch: (query) => setState(() => _lastSearch = query),
+                      onChanged: (query) {
+                        _debounce?.cancel();
+                        _debounce = Timer(
+                          const Duration(milliseconds: 400),
+                          () => setState(() => _lastSearch = query),
+                        );
+                      },
+                    ),
+                    const SizedBox(height: 22),
+                    const Padding(
+                      padding: EdgeInsets.only(top: 32),
+                      child: _CustomLoader(),
+                    ),
+                  ],
                 ),
                 error: (_, __) => _buildErrorState(isDark),
               ),
