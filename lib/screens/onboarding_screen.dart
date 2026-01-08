@@ -3,6 +3,7 @@ import 'package:flutter/services.dart'; // Importante para SystemUiOverlayStyle
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:video_player/video_player.dart';
 import '../app_theme.dart';
+import '../services/notification_service.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -33,6 +34,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 
   Future<void> _finishOnboarding(BuildContext context) async {
+    // Solicitar permiso de notificaciones antes de continuar
+    try {
+      await NotificationService().requestPermissionIfNeeded();
+    } catch (e) {
+      // Puedes mostrar un mensaje si lo deseas, pero no bloquea el flujo
+    }
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('seenOnboarding', true);
     Navigator.of(context).pushReplacementNamed('/login');

@@ -19,16 +19,7 @@ class _NotificationTopicsScreenState
   @override
   void initState() {
     super.initState();
-    _requestNotificationPermission();
     _subscribedTopicsFuture = NotificationService().getSubscribedTopics();
-  }
-
-  Future<void> _requestNotificationPermission() async {
-    try {
-      await NotificationService().requestPermissionIfNeeded();
-    } catch (e) {
-      // Manejar error de permisos si es necesario
-    }
   }
 
   void _refresh() {
