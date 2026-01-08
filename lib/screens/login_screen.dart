@@ -37,7 +37,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
+
     setState(() => _isLoading = true);
+
     try {
       await ref.read(
         loginProvider({
@@ -45,10 +47,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           'password': _passwordController.text.trim(),
         }).future,
       );
-      // Guardar sesión iniciada
+
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool('isLoggedIn', true);
+
       if (!mounted) return;
+
       await showDialog(
         context: context,
         builder: (ctx) => AlertDialog(
@@ -62,17 +66,18 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           ],
         ),
       );
+
       if (mounted) {
         Navigator.of(context).pushReplacementNamed('/home');
       }
     } catch (e) {
-      String errorMessage =
-          'No pudimos iniciar sesión. Por favor, revisa tu correo y contraseña e inténtalo de nuevo.';
       await showDialog(
         context: context,
         builder: (ctx) => AlertDialog(
           title: const Text('¡Ups!'),
-          content: Text(errorMessage),
+          content: const Text(
+            'No pudimos iniciar sesión. Revisa tu correo y contraseña.',
+          ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(ctx).pop(),
@@ -88,34 +93,32 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Determinar si estamos en tema oscuro o claro para usar los colores correctos
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
     final backgroundStartColor = isDarkMode
         ? AppTheme.navBackground
-        : AppTheme
-              .splashBackgroundBottom; // Usar splashBackgroundBottom para el color principal claro
-    final backgroundEndColor = isDarkMode
-        ? AppTheme.navSelected.withOpacity(0.7)
-        : AppTheme.navSelected.withOpacity(
-            0.7,
-          ); // Un poco más oscuro para el gradiente
+        : AppTheme.splashBackgroundBottom;
+
+    final backgroundEndColor = AppTheme.navSelected.withOpacity(0.7);
 
     final cardBackgroundColor = isDarkMode
         ? AppTheme.navBackground.withOpacity(0.6)
         : Colors.white.withOpacity(0.5);
+
     final cardBorderColor = isDarkMode
         ? AppTheme.navSelected.withOpacity(0.5)
         : AppTheme.searchBorder.withOpacity(0.7);
+
     final textColor = isDarkMode ? Colors.white : AppTheme.categoryChipText;
+
     final hintColor = isDarkMode ? AppTheme.navUnselected : AppTheme.searchHint;
+
     final primaryButtonColor = AppTheme.navSelected;
     final secondaryButtonColor = isDarkMode
         ? AppTheme.navUnselected
-        : AppTheme.navSelected; // Para "Crear cuenta nueva"
-    final iconColor = isDarkMode
-        ? Colors.white
-        : AppTheme.categoryChipText; // Color del ícono de usuario
+        : AppTheme.navSelected;
+
+    final iconColor = isDarkMode ? Colors.white : AppTheme.categoryChipText;
 
     return Scaffold(
       body: AnnotatedRegion<SystemUiOverlayStyle>(
@@ -132,14 +135,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           ),
           child: Center(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.all(24.0),
+              padding: const EdgeInsets.all(24),
               child: Container(
                 constraints: const BoxConstraints(maxWidth: 400),
-                padding: const EdgeInsets.all(32.0),
+                padding: const EdgeInsets.all(32),
                 decoration: BoxDecoration(
                   color: cardBackgroundColor,
-                  borderRadius: BorderRadius.circular(24.0),
-                  border: Border.all(color: cardBorderColor, width: 1.0),
+                  borderRadius: BorderRadius.circular(24),
+                  border: Border.all(color: cardBorderColor),
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black.withOpacity(0.1),
@@ -163,108 +166,54 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           color: textColor,
                         ),
                       ),
-                      const SizedBox(height: 8),
-                      // ... Texto 'Completa tus datos' eliminado ...
                       const SizedBox(height: 32),
+
+                      /// EMAIL
                       TextFormField(
                         controller: _emailController,
-                        decoration: InputDecoration(
-                          labelText: 'Correo',
-                          hintText: 'ejemplo@correo.com',
-                          labelStyle: TextStyle(color: hintColor),
-                          hintStyle: TextStyle(
-                            color: hintColor.withOpacity(0.7),
-                          ),
-                          filled: true,
-                          fillColor:
-                              Theme.of(context).brightness == Brightness.dark
-                              ? AppTheme.navBackground.withOpacity(0.8)
-                              : Colors.white,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12.0),
-                            borderSide: BorderSide
-                                .none, // Quitamos el borde por defecto
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12.0),
-                            borderSide: BorderSide(
-                              color: primaryButtonColor,
-                              width: 2.0,
-                            ),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12.0),
-                            borderSide: BorderSide(
-                              color: cardBorderColor.withOpacity(0.7),
-                              width: 1.0,
-                            ),
-                          ),
-                        ),
                         validator: Validators.email,
                         keyboardType: TextInputType.emailAddress,
                         style: TextStyle(color: textColor),
+                        decoration: _inputDecoration(
+                          context,
+                          label: 'Correo',
+                          hint: 'ejemplo@correo.com',
+                          hintColor: hintColor,
+                          borderColor: cardBorderColor,
+                          primaryColor: primaryButtonColor,
+                        ),
                       ),
+
                       const SizedBox(height: 16),
+
+                      /// PASSWORD
                       TextFormField(
                         controller: _passwordController,
-                        decoration: InputDecoration(
-                          labelText: 'Contraseña',
-                          hintText: '********',
-                          labelStyle: TextStyle(color: hintColor),
-                          hintStyle: TextStyle(
-                            color: hintColor.withOpacity(0.7),
-                          ),
-                          filled: true,
-                          fillColor:
-                              Theme.of(context).brightness == Brightness.dark
-                              ? AppTheme.navBackground.withOpacity(0.8)
-                              : Colors.white,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12.0),
-                            borderSide: BorderSide.none,
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12.0),
-                            borderSide: BorderSide(
-                              color: primaryButtonColor,
-                              width: 2.0,
-                            ),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12.0),
-                            borderSide: BorderSide(
-                              color: cardBorderColor.withOpacity(0.7),
-                              width: 1.0,
-                            ),
-                          ),
-                          suffixIcon: IconButton(
+                        validator: Validators.password,
+                        obscureText: !_showPassword,
+                        style: TextStyle(color: textColor),
+                        decoration: _inputDecoration(
+                          context,
+                          label: 'Contraseña',
+                          hint: '********',
+                          hintColor: hintColor,
+                          borderColor: cardBorderColor,
+                          primaryColor: primaryButtonColor,
+                          suffix: IconButton(
                             icon: Icon(
                               _showPassword
                                   ? Icons.visibility
                                   : Icons.visibility_off,
-                              color:
-                                  Theme.of(context).brightness ==
-                                      Brightness.dark
-                                  ? Colors.white70
-                                  : Colors.grey,
+                              color: isDarkMode ? Colors.white70 : Colors.grey,
                             ),
-                            onPressed: () {
-                              setState(() {
-                                _showPassword = !_showPassword;
-                              });
-                            },
+                            onPressed: () =>
+                                setState(() => _showPassword = !_showPassword),
                           ),
                         ),
-                        validator: Validators.password,
-                        obscureText: !_showPassword,
-                        style: TextStyle(color: textColor),
                       ),
+
                       const SizedBox(height: 24),
-                      Align(
-                        alignment: Alignment.centerRight,
-                        // ... Botón de recuperar contraseña eliminado ...
-                      ),
-                      const SizedBox(height: 24),
+
                       _isLoading
                           ? CircularProgressIndicator(color: primaryButtonColor)
                           : SizedBox(
@@ -275,54 +224,41 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: primaryButtonColor,
                                   shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12.0),
-                                  ),
-                                  shadowColor: primaryButtonColor.withOpacity(
-                                    0.5,
+                                    borderRadius: BorderRadius.circular(12),
                                   ),
                                   elevation: 8,
                                 ),
-                                child: Text(
+                                child: const Text(
                                   'Iniciar Sesión',
                                   style: TextStyle(
-                                    color: Colors.white,
                                     fontSize: 18,
                                     fontWeight: FontWeight.bold,
+                                    color: Colors.white,
                                   ),
                                 ),
                               ),
                             ),
-                      const SizedBox(height: 12),
-                      SizedBox(
-                        width: double.infinity,
-                        height: 48,
-                        child: OutlinedButton(
-                          onPressed: _guestLogin,
-                          style: OutlinedButton.styleFrom(
-                            side: BorderSide(
-                              color: secondaryButtonColor,
-                              width: 2,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12.0),
-                            ),
-                          ),
-                          child: Text(
-                            'Entrar como invitado',
-                            style: TextStyle(
-                              color: secondaryButtonColor,
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
+
+                      const SizedBox(height: 16),
+
+                      /// 👉 BOTÓN INVITADO (MISMO DISEÑO QUE CREAR CUENTA)
+                      TextButton(
+                        onPressed: _guestLogin,
+                        child: Text(
+                          'Entrar como invitado',
+                          style: TextStyle(
+                            color: secondaryButtonColor,
+                            fontSize: 16,
                           ),
                         ),
                       ),
-                      const SizedBox(height: 20),
+
+                      /// CREAR CUENTA
                       TextButton(
                         onPressed: () {
-                          Navigator.of(context).pushReplacementNamed(
-                            '/register',
-                          ); // Cambiado a pushReplacementNamed
+                          Navigator.of(
+                            context,
+                          ).pushReplacementNamed('/register');
                         },
                         child: Text(
                           'Crear cuenta nueva',
@@ -340,6 +276,40 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           ),
         ),
       ),
+    );
+  }
+
+  InputDecoration _inputDecoration(
+    BuildContext context, {
+    required String label,
+    required String hint,
+    required Color hintColor,
+    required Color borderColor,
+    required Color primaryColor,
+    Widget? suffix,
+  }) {
+    return InputDecoration(
+      labelText: label,
+      hintText: hint,
+      labelStyle: TextStyle(color: hintColor),
+      hintStyle: TextStyle(color: hintColor.withOpacity(0.7)),
+      filled: true,
+      fillColor: Theme.of(context).brightness == Brightness.dark
+          ? AppTheme.navBackground.withOpacity(0.8)
+          : Colors.white,
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide.none,
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(color: borderColor),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(color: primaryColor, width: 2),
+      ),
+      suffixIcon: suffix,
     );
   }
 }
