@@ -105,7 +105,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         const SizedBox(height: 24),
-
                         // CARD CENTRAL CON IMAGEN Y NOMBRE
                         Card(
                           color: isDark ? AppTheme.navBackground : Colors.white,
@@ -178,9 +177,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                                   icon: const Icon(Icons.edit, size: 20),
                                   label: const Text('Editar perfil'),
                                   style: ElevatedButton.styleFrom(
-                                    // Usamos el azul principal de tu tema
                                     backgroundColor: AppTheme.navSelected,
-                                    // Forzamos blanco para texto e icono, asegurando visibilidad
                                     foregroundColor: Colors.white,
                                     elevation: isDark ? 0 : 3,
                                     padding: const EdgeInsets.symmetric(
@@ -196,9 +193,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                             ),
                           ),
                         ),
-
                         const SizedBox(height: 32),
-
                         // DATOS PERFIL EN MINI-CARDS
                         _profileDataCard(
                           'Correo',
@@ -219,6 +214,84 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                               : '${birthDate.day}/${birthDate.month}/${birthDate.year}',
                           isDark,
                           icon: Icons.cake,
+                        ),
+                        const SizedBox(height: 32),
+                        // Botón eliminar cuenta
+                        ElevatedButton.icon(
+                          icon: const Icon(Icons.delete_forever),
+                          label: const Text('Eliminar cuenta'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.red,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 24,
+                              vertical: 14,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          onPressed: () async {
+                            final confirm = await showDialog<bool>(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                title: const Text('¿Eliminar cuenta?'),
+                                content: const Text(
+                                  'Esta acción es irreversible. ¿Deseas continuar?',
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () =>
+                                        Navigator.of(context).pop(false),
+                                    child: const Text('Cancelar'),
+                                  ),
+                                  TextButton(
+                                    onPressed: () =>
+                                        Navigator.of(context).pop(true),
+                                    child: const Text(
+                                      'Eliminar',
+                                      style: TextStyle(color: Colors.red),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                            if (confirm == true) {
+                              try {
+                                // Eliminar todos los comentarios del usuario
+                                final commentsSnap = await FirebaseFirestore
+                                    .instance
+                                    .collection('comments')
+                                    .where('userId', isEqualTo: user.uid)
+                                    .get();
+                                for (final doc in commentsSnap.docs) {
+                                  await doc.reference.delete();
+                                }
+                                // Eliminar de Firestore
+                                await FirebaseFirestore.instance
+                                    .collection('users')
+                                    .doc(user.uid)
+                                    .delete();
+                                // Eliminar de Auth
+                                await user.delete();
+                                // Redirigir al home
+                                if (mounted) {
+                                  Navigator.of(context).pushNamedAndRemoveUntil(
+                                    '/',
+                                    (route) => false,
+                                  );
+                                }
+                              } catch (e) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      'Error al eliminar cuenta: \n${e.toString()}',
+                                    ),
+                                  ),
+                                );
+                              }
+                            }
+                          },
                         ),
                       ],
                     ),
