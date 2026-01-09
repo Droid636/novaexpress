@@ -7,7 +7,7 @@ import '../helpers/posts_provider.dart';
 import '../components/post_card.dart';
 import '../components/news_search_bar.dart';
 import '../components/news_bottom_nav_bar.dart';
-import '../components/theme_menu_button.dart'; // ✅ NUEVO
+import '../components/theme_menu_button.dart';
 import '../app_theme.dart';
 import 'favorites_screen.dart';
 import 'categories_screen.dart';
@@ -37,7 +37,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     super.dispose();
   }
 
-  // ================= HOME TAB =================
   Widget _buildHomeTab(bool isDark) {
     final postsAsync = ref.watch(postsProvider(_lastSearch ?? ''));
     final screenHeight = MediaQuery.of(context).size.height;
@@ -51,7 +50,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             children: [
               const SizedBox(height: 40),
 
-              // ================= HEADER =================
               Stack(
                 alignment: Alignment.center,
                 children: [
@@ -206,7 +204,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
-  // ================= ERROR =================
   Widget _buildErrorState(bool isDark) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 40),
@@ -237,7 +234,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
-  // ================= TABS =================
   Widget _buildBookmarksTab() => const FavoritesScreen();
   Widget _buildCategoriesTab() => const CategoriesScreen();
 
@@ -296,7 +292,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 }
 
-// ================= LOADER =================
 class _CustomLoader extends StatefulWidget {
   const _CustomLoader();
 

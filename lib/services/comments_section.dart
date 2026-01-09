@@ -44,7 +44,6 @@ class _CommentsSectionState extends ConsumerState<CommentsSection> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Título de la sección
         const Padding(
           padding: EdgeInsets.only(bottom: 8.0, top: 16.0),
           child: Text(
@@ -53,7 +52,6 @@ class _CommentsSectionState extends ConsumerState<CommentsSection> {
           ),
         ),
 
-        // Lista de comentarios
         StreamBuilder<List<Comment>>(
           stream: commentService.getComments(widget.postId),
           builder: (context, snapshot) {
@@ -233,7 +231,6 @@ class _CommentsSectionState extends ConsumerState<CommentsSection> {
             ),
           ),
 
-        // Input de texto
         Padding(
           padding: const EdgeInsets.only(top: 12.0),
           child: Container(
@@ -275,7 +272,6 @@ class _CommentsSectionState extends ConsumerState<CommentsSection> {
                     if (_controller.text.trim().isEmpty) return;
                     try {
                       if (_editingId == null) {
-                        // Get user profile image from Firestore
                         String? profileImageUrl;
                         try {
                           final userDoc = await FirebaseFirestore.instance

@@ -27,7 +27,7 @@ class PostDetailScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // ================= IMAGEN =================
+            
             if (post.featuredImage.isNotEmpty)
               Stack(
                 children: [
@@ -41,7 +41,7 @@ class PostDetailScreen extends StatelessWidget {
                     ),
                   ),
 
-                  // ❌ BOTÓN CERRAR (CLARO / OSCURO)
+                  
                   Positioned(
                     top: 10,
                     right: 16,
@@ -68,7 +68,7 @@ class PostDetailScreen extends StatelessWidget {
 
             if (post.featuredImage.isNotEmpty) const SizedBox(height: 18),
 
-            // ================= TÍTULO =================
+            
             Text(
               post.title,
               style: TextStyle(
@@ -82,7 +82,7 @@ class PostDetailScreen extends StatelessWidget {
 
             const SizedBox(height: 10),
 
-            // ================= SEPARADOR =================
+            
             Container(
               width: 60,
               height: 4,
@@ -94,7 +94,7 @@ class PostDetailScreen extends StatelessWidget {
 
             const SizedBox(height: 18),
 
-            // ================= CONTENIDO HTML =================
+            
             HtmlWidget(
               post.content,
               textStyle: TextStyle(
@@ -107,7 +107,7 @@ class PostDetailScreen extends StatelessWidget {
 
             const SizedBox(height: 18),
 
-            // ================= FECHA =================
+            
             Align(
               alignment: Alignment.centerRight,
               child: Text(
@@ -122,7 +122,7 @@ class PostDetailScreen extends StatelessWidget {
             ),
             const SizedBox(height: 24),
 
-            // ================= COMENTARIOS =================
+            
             Builder(
               builder: (context) {
                 final user = FirebaseAuth.instance.currentUser;

@@ -194,7 +194,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                           ),
                         ),
                         const SizedBox(height: 32),
-                        // DATOS PERFIL EN MINI-CARDS
+
                         _profileDataCard(
                           'Correo',
                           email,
@@ -216,7 +216,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                           icon: Icons.cake,
                         ),
                         const SizedBox(height: 32),
-                        // Botón eliminar cuenta
+
                         ElevatedButton.icon(
                           icon: const Icon(Icons.delete_forever),
                           label: const Text('Eliminar cuenta'),
@@ -258,7 +258,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                             );
                             if (confirm == true) {
                               try {
-                                // Eliminar todos los comentarios del usuario
                                 final commentsSnap = await FirebaseFirestore
                                     .instance
                                     .collection('comments')
@@ -267,14 +266,14 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                                 for (final doc in commentsSnap.docs) {
                                   await doc.reference.delete();
                                 }
-                                // Eliminar de Firestore
+
                                 await FirebaseFirestore.instance
                                     .collection('users')
                                     .doc(user.uid)
                                     .delete();
-                                // Eliminar de Auth
+
                                 await user.delete();
-                                // Redirigir al login
+
                                 if (mounted) {
                                   Navigator.of(context).pushNamedAndRemoveUntil(
                                     '/login',

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart'; // Importante para SystemUiOverlayStyle
+import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:video_player/video_player.dart';
 import '../app_theme.dart';
@@ -34,12 +34,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 
   Future<void> _finishOnboarding(BuildContext context) async {
-    // Solicitar permiso de notificaciones antes de continuar
     try {
       await NotificationService().requestPermissionIfNeeded();
-    } catch (e) {
-      // Puedes mostrar un mensaje si lo deseas, pero no bloquea el flujo
-    }
+    } catch (e) {}
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('seenOnboarding', true);
     Navigator.of(context).pushReplacementNamed('/login');
@@ -47,19 +44,15 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Aplicamos el estilo a la barra de estado aquí
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: const SystemUiOverlayStyle(
-        statusBarColor: Colors.transparent, // Barra transparente
-        statusBarIconBrightness:
-            Brightness.light, // Iconos blancos (iOS/Android)
-        statusBarBrightness:
-            Brightness.dark, // Necesario para que en iOS se vean blancos
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.light,
+        statusBarBrightness: Brightness.dark,
       ),
       child: Scaffold(
         body: Stack(
           children: [
-            // 1. Fondo de Video
             _controller.value.isInitialized
                 ? SizedBox.expand(
                     child: FittedBox(
@@ -73,7 +66,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   )
                 : Container(color: Colors.black),
 
-            // 2. Overlay para legibilidad
             Container(
               decoration: BoxDecoration(
                 gradient: LinearGradient(
@@ -87,15 +79,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               ),
             ),
 
-            // 3. Contenido
             SafeArea(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 40),
                 child: Column(
                   children: [
                     const Spacer(flex: 2),
-
-                    // Logo de la App
                     Image.asset(
                       'assets/images/logo.png',
                       height: 100,
@@ -104,7 +93,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
                     const SizedBox(height: 20),
 
-                    // Nombre de la App
                     const Text(
                       'NovaExpress',
                       style: TextStyle(
@@ -129,7 +117,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
                     const Spacer(flex: 4),
 
-                    // BOTÓN CONTINUAR
                     SizedBox(
                       width: double.infinity,
                       height: 58,

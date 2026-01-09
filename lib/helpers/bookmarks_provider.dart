@@ -6,16 +6,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/post.dart';
 import '../services/favorites_cache_service.dart';
 
-/// ===============================
-/// AUTH USER PROVIDER
-/// ===============================
 final authUserProvider = StreamProvider<User?>((ref) {
   return FirebaseAuth.instance.authStateChanges();
 });
 
-/// ===============================
-/// BOOKMARKS PROVIDER
-/// ===============================
 final bookmarksProvider = StateNotifierProvider<BookmarksNotifier, Set<int>>((
   ref,
 ) {
@@ -23,9 +17,6 @@ final bookmarksProvider = StateNotifierProvider<BookmarksNotifier, Set<int>>((
   return BookmarksNotifier(user);
 });
 
-/// ===============================
-/// NOTIFIER
-/// ===============================
 class BookmarksNotifier extends StateNotifier<Set<int>> {
   final User? user;
 
@@ -41,7 +32,7 @@ class BookmarksNotifier extends StateNotifier<Set<int>> {
     state = {...state, post.id};
     await _saveBookmarks();
     await _saveToFirestore();
-    // Guardar el post en el caché de Hive
+
     final currentFavorites = FavoritesCacheService.getFavorites();
     final updatedFavorites = {...currentFavorites, post};
     await FavoritesCacheService.saveFavorites(updatedFavorites.toList());
@@ -51,7 +42,7 @@ class BookmarksNotifier extends StateNotifier<Set<int>> {
     state = state.where((id) => id != post.id).toSet();
     await _saveBookmarks();
     await _saveToFirestore();
-    // Eliminar el post del caché de Hive
+
     final currentFavorites = FavoritesCacheService.getFavorites();
     final updatedFavorites = currentFavorites
         .where((p) => p.id != post.id)
@@ -66,9 +57,6 @@ class BookmarksNotifier extends StateNotifier<Set<int>> {
     await _saveBookmarks();
   }
 
-  /// ===============================
-  /// LOCAL CACHE
-  /// ===============================
   Future<void> _saveBookmarks() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setStringList(
@@ -78,7 +66,6 @@ class BookmarksNotifier extends StateNotifier<Set<int>> {
   }
 
   Future<void> _loadBookmarks() async {
-    // 🔥 Firestore primero
     if (user != null) {
       final doc = await FirebaseFirestore.instance
           .collection('users')
@@ -97,14 +84,7 @@ class BookmarksNotifier extends StateNotifier<Set<int>> {
         // Aquí deberías cargar los posts favoritos desde la API y guardarlos en Hive
         try {
           final posts = <Post>[];
-          for (final id in favs) {
-            // Aquí deberías tener acceso a un servicio de API para obtener el post por ID
-            // Este ejemplo asume que tienes un método estático Post.fetchById(id)
-            // Si no, deberás inyectar el servicio o pasarlo como parámetro
-            // final post = await Post.fetchById(id);
-            // posts.add(post);
-          }
-          // await FavoritesCacheService.saveFavorites(posts);
+          for (final id in favs) {}
         } catch (_) {}
         return;
       }
@@ -116,9 +96,6 @@ class BookmarksNotifier extends StateNotifier<Set<int>> {
     state = saved.map(int.parse).toSet();
   }
 
-  /// ===============================
-  /// FIRESTORE
-  /// ===============================
   Future<void> _saveToFirestore() async {
     if (user == null) return;
 

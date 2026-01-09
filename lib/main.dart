@@ -20,38 +20,28 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // 🔥 Inicialización correcta de Firebase (Android / iOS)
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
-  // 🔐 App Check en modo DEBUG (NO bloquea la app)
   await FirebaseAppCheck.instance.activate(
     androidProvider: AndroidProvider.debug,
   );
 
   await FavoritesCacheService.init();
 
-  // Inicializar notificaciones en primer plano
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   runApp(const ProviderScope(child: MyApp()));
   _setupFirebaseMessagingHandler();
 }
 
-/// Handler para notificaciones push en segundo plano o cuando la app está terminada
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
-  // Aquí puedes mostrar una notificación local o hacer logging
-  // print('Notificación push recibida en background: \\${message.messageId}');
 }
 
 void _setupFirebaseMessagingHandler() {
-  // Importa firebase_messaging en pubspec.yaml si no está
-  // y agrega este import arriba:
-  // import 'package:firebase_messaging/firebase_messaging.dart';
-  // ignore: avoid_print
   FirebaseMessaging.onMessage.listen((RemoteMessage message) {
     print('[FCM] Mensaje recibido: ${message.data}');
     print('[FCM] Notificación: ${message.notification}');
-    // Mostrar SnackBar con el título y cuerpo de la notificación
+
     final navigator = navigatorKey.currentState;
     if (navigator != null && message.notification != null) {
       final context = navigator.overlay?.context;

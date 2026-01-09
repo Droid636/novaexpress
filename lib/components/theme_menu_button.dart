@@ -44,9 +44,6 @@ class ThemeMenuButton extends ConsumerWidget {
                     ),
                   ),
 
-                  // ===============================
-                  // PERFIL (solo autenticado)
-                  // ===============================
                   if (user != null) ...[
                     FutureBuilder<DocumentSnapshot>(
                       future: FirebaseFirestore.instance
@@ -143,9 +140,6 @@ class ThemeMenuButton extends ConsumerWidget {
                     const Divider(indent: 15, endIndent: 15),
                   ],
 
-                  // ===============================
-                  // TEMA (todos)
-                  // ===============================
                   _buildOption(
                     context,
                     isDark: isDark,
@@ -164,9 +158,6 @@ class ThemeMenuButton extends ConsumerWidget {
                     },
                   ),
 
-                  // ===============================
-                  // NOTIFICACIONES (solo autenticado)
-                  // ===============================
                   if (user != null)
                     _buildOption(
                       context,
@@ -184,9 +175,6 @@ class ThemeMenuButton extends ConsumerWidget {
                       },
                     ),
 
-                  // ===============================
-                  // OPCIONES SEGÚN ESTADO
-                  // ===============================
                   if (user != null) ...[
                     _buildOption(
                       context,

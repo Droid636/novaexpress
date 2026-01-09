@@ -241,7 +241,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
                       const SizedBox(height: 16),
 
-                      /// 👉 BOTÓN INVITADO (MISMO DISEÑO QUE CREAR CUENTA)
                       TextButton(
                         onPressed: _guestLogin,
                         child: Text(

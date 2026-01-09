@@ -50,7 +50,6 @@ class _NotificationTopicsScreenState
           return FutureBuilder<List<String>>(
             future: _subscribedTopicsFuture,
             builder: (context, snapshot) {
-              // Mientras carga el Future de tópicos, mostramos un indicador local o lista vacía
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const Center(child: CircularProgressIndicator());
               }

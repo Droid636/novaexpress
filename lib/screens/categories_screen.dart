@@ -52,7 +52,6 @@ class CategoriesScreen extends ConsumerWidget {
                   ),
                   const SizedBox(height: 12),
 
-                  // ================= CHIPS =================
                   SizedBox(
                     height: 54,
                     child: ListView.separated(
@@ -150,7 +149,6 @@ class CategoriesScreen extends ConsumerWidget {
     );
   }
 
-  // ================= BACKGROUND =================
   Widget _screenBackground(bool isDark, Widget child) {
     return Container(
       decoration: BoxDecoration(
@@ -170,7 +168,6 @@ class CategoriesScreen extends ConsumerWidget {
     );
   }
 
-  // ================= ERROR =================
   Widget _errorState(WidgetRef ref, bool isDark, {String? msg}) {
     return Center(
       child: Column(
@@ -216,7 +213,6 @@ class CategoriesScreen extends ConsumerWidget {
   }
 }
 
-// ================= LOADER =================
 class _CustomLoader extends StatefulWidget {
   const _CustomLoader();
 

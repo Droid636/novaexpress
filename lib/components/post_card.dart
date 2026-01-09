@@ -8,9 +8,7 @@ import '../models/post.dart';
 import 'post_detail_modal.dart';
 import '../app_theme.dart';
 
-/// ===============================
-/// POST CARD
-/// ===============================
+
 class PostCard extends ConsumerWidget {
   final Post post;
   final bool showImage;

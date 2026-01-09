@@ -2,10 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 class AppTheme {
-  // ===========================
-  // 🔵 COLORES OSCUROS (BASE)
-  // ===========================
-
   static const Color navBackground = Color(0xFF1A2236);
   static const Color navSelected = Color(0xFF3578C6);
   static const Color navUnselected = Color(0xFF8CA6C6);
@@ -13,31 +9,24 @@ class AppTheme {
   static const Color navIconSelected = navSelected;
   static const Color navIconUnselected = navUnselected;
 
-  // Splash (fondos oscuros)
   static const Color splashBackgroundTop = navBackground;
   static const Color splashBackgroundBottom = navSelected;
   static const Color splashArc = Color(0xFF4FC3F7);
 
-  // Textos sobre fondo oscuro
   static const Color splashLogoWhite = Colors.white;
   static const Color splashLogoGlow = Color(0xFFB2E6FF);
   static const Color splashText = Colors.white;
   static const Color splashSubtitle = Color(0xFFB2E6FF);
 
-  // Categorías seleccionadas (oscuras)
   static const Color categorySelectedGradientStart = navSelected;
   static const Color categorySelectedGradientEnd = navBackground;
   static const Color categorySelectedText = Colors.white;
   static const Color categorySelectedShadow = Color(0x223578C6);
 
-  // ===========================
-  // ⚪ COLORES CLAROS (UI)
-  // ===========================
-
   static const Color categoryBackground = Color(0xFFF6F7F9);
   static const Color bookmarksBackground = categoryBackground;
 
-  // Search
+  // Serch Bar
   static const Color searchBackground = Color(0xFFF6F7F9);
   static const Color searchBorder = Color(0xFFE0E3EB);
   static const Color searchIconBg = navSelected;
@@ -55,8 +44,6 @@ class AppTheme {
   static const Color bookmarksSubtitle = navSelected;
   static const Color bookmarksEmptyIcon = Color(0xFFB0B8C1);
 
-  // ===========================
-  // ☀️ LIGHT THEME (SIN CAMBIOS)
   // ===========================
 
   static ThemeData get lightTheme {
@@ -76,8 +63,6 @@ class AppTheme {
     );
   }
 
-  // ===========================
-  // 🌙 DARK THEME (AGREGADO)
   // ===========================
 
   static ThemeData get darkTheme {

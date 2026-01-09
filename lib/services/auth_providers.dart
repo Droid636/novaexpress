@@ -2,11 +2,8 @@ import 'dart:io';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_storage/firebase_storage.dart'; // Importante añadir esta dependencia
+import 'package:firebase_storage/firebase_storage.dart';
 
-/// =======================
-/// REGISTRO
-/// =======================
 final registerProvider = FutureProvider.family<void, Map<String, dynamic>>((
   ref,
   userData,
@@ -22,10 +19,8 @@ final registerProvider = FutureProvider.family<void, Map<String, dynamic>>((
   final phone = userData['phone'] ?? '';
   final birthDateString = userData['birthDate'] as String;
 
-  // Capturamos el path de la imagen (puede venir de image_picker)
   final String? imagePath = userData['profileImagePath'];
 
-  // 1️⃣ Crear usuario en Firebase Auth
   final userCredential = await auth.createUserWithEmailAndPassword(
     email: email,
     password: password,
@@ -36,25 +31,22 @@ final registerProvider = FutureProvider.family<void, Map<String, dynamic>>((
     throw Exception('No se pudo crear el usuario');
   }
 
-  // 2️⃣ Subir Imagen a Firebase Storage (si existe)
   String profileImageUrl = '';
   if (imagePath != null && imagePath.isNotEmpty) {
     try {
       print('Intentando subir imagen desde: $imagePath');
       final file = File(imagePath);
       print('¿Existe el archivo local?: \'${file.existsSync()}\'');
-      // Creamos una referencia: usuarios/uid/profile_image.jpg
+
       final storageRef = storage
           .ref()
           .child('users')
           .child(user.uid)
           .child('profile_image.jpg');
 
-      // Subimos el archivo
       final uploadTask = await storageRef.putFile(file);
       print('Subida completada.');
 
-      // Obtenemos la URL de descarga pública
       profileImageUrl = await uploadTask.ref.getDownloadURL();
       print('URL de descarga obtenida: $profileImageUrl');
     } catch (e, stack) {
@@ -63,10 +55,8 @@ final registerProvider = FutureProvider.family<void, Map<String, dynamic>>((
     }
   }
 
-  // 3️⃣ Actualizar displayName en Auth
   await user.updateDisplayName('$name $lastName');
 
-  // 4️⃣ Guardar datos adicionales en Firestore con la URL real
   await firestore.collection('users').doc(user.uid).set({
     'uid': user.uid,
     'name': name,
@@ -74,7 +64,7 @@ final registerProvider = FutureProvider.family<void, Map<String, dynamic>>((
     'email': email,
     'phone': phone,
     'birthDate': Timestamp.fromDate(DateTime.parse(birthDateString)),
-    'profileImage': profileImageUrl, // <--- Aquí ya no es un string vacío
+    'profileImage': profileImageUrl,
     'role': 'user',
     'isActive': true,
     'createdAt': FieldValue.serverTimestamp(),
@@ -82,9 +72,6 @@ final registerProvider = FutureProvider.family<void, Map<String, dynamic>>((
   });
 });
 
-/// =======================
-/// LOGIN
-/// =======================
 final loginProvider =
     FutureProvider.family<UserCredential, Map<String, String>>((
       ref,
@@ -100,7 +87,6 @@ final loginProvider =
         password: password,
       );
 
-      // 🔄 Actualizar último login
       await FirebaseFirestore.instance
           .collection('users')
           .doc(userCredential.user!.uid)

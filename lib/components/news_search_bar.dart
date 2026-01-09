@@ -24,7 +24,7 @@ class NewsSearchBar extends StatelessWidget {
         decoration: BoxDecoration(
           color: isDark
               ? AppTheme
-                    .navBackground // ✅ fondo oscuro real
+                    .navBackground 
               : Colors.white,
           borderRadius: BorderRadius.circular(30),
           border: Border.all(
@@ -59,7 +59,7 @@ class NewsSearchBar extends StatelessWidget {
               ),
             ),
 
-            // BOTÓN SEARCH (SE MANTIENE)
+            
             Container(
               height: 48,
               width: 48,
