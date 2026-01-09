@@ -274,10 +274,10 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                                     .delete();
                                 // Eliminar de Auth
                                 await user.delete();
-                                // Redirigir al home
+                                // Redirigir al login
                                 if (mounted) {
                                   Navigator.of(context).pushNamedAndRemoveUntil(
-                                    '/',
+                                    '/login',
                                     (route) => false,
                                   );
                                 }
