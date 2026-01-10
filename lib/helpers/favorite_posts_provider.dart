@@ -3,7 +3,7 @@ import '../models/post.dart';
 import 'bookmarks_provider.dart';
 import 'providers.dart';
 
-/// Proveedor que obtiene los posts favoritos por sus IDs guardados
+
 import '../services/favorites_cache_service.dart';
 
 final favoritePostsProvider = FutureProvider<List<Post>>((ref) async {

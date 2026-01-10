@@ -126,7 +126,7 @@ class _NotificationTopicsScreenState
                                 ),
                               ),
                               value: isSubscribed,
-                              activeColor: isDark
+                              activeThumbColor: isDark
                                   ? AppTheme.navSelected
                                   : AppTheme.categorySelectedGradientStart,
                               onChanged: (val) async {
@@ -164,7 +164,7 @@ class _NotificationTopicsScreenState
                               },
                             ),
                           );
-                        }).toList(),
+                        }),
                       ],
                     ),
                   ),

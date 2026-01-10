@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import '../app_theme.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../app_theme.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -13,22 +14,33 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    _checkOnboarding();
+    _initFlow();
   }
 
-  Future<void> _checkOnboarding() async {
+  Future<void> _initFlow() async {
     await Future.delayed(const Duration(seconds: 2));
+
     final prefs = await SharedPreferences.getInstance();
     final seenOnboarding = prefs.getBool('seenOnboarding') ?? false;
-    final isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
-    if (seenOnboarding) {
-      if (isLoggedIn) {
-        Navigator.of(context).pushReplacementNamed('/home');
-      } else {
-        Navigator.of(context).pushReplacementNamed('/login');
-      }
+    final user = FirebaseAuth.instance.currentUser;
+
+    if (!mounted) return;
+
+    if (!seenOnboarding) {
+      Navigator.pushReplacementNamed(context, '/onboarding');
+      return;
+    }
+
+    final isGuest = prefs.getBool('isGuest') ?? false;
+
+    if (user != null) {
+      Navigator.pushReplacementNamed(context, '/home');
+    } else if (isGuest) {
+      Navigator.pushReplacementNamed(context, '/home');
     } else {
-      Navigator.of(context).pushReplacementNamed('/onboarding');
+      await prefs.remove('isGuest');
+      await prefs.remove('isLoggedIn');
+      Navigator.pushReplacementNamed(context, '/login');
     }
   }
 
@@ -76,89 +88,14 @@ class _SplashScreenState extends State<SplashScreen> {
               style: TextStyle(
                 color: AppTheme.splashSubtitle,
                 fontSize: 18,
-                fontWeight: FontWeight.w400,
                 letterSpacing: 1.2,
               ),
             ),
             const SizedBox(height: 32),
-            const _CustomLoader(),
+            const CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+            ),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-class _CustomLoader extends StatefulWidget {
-  const _CustomLoader();
-
-  @override
-  State<_CustomLoader> createState() => _CustomLoaderState();
-}
-
-class _CustomLoaderState extends State<_CustomLoader>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _controller = AnimationController(
-    vsync: this,
-    duration: const Duration(seconds: 1),
-  )..repeat();
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: 48,
-      height: 48,
-      child: AnimatedBuilder(
-        animation: _controller,
-        builder: (context, child) {
-          return Transform.rotate(
-            angle: _controller.value * 6.28319, // 2*PI
-            child: child,
-          );
-        },
-        child: Container(
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            gradient: SweepGradient(
-              colors: [
-                AppTheme.splashArc,
-                AppTheme.navSelected,
-                AppTheme.splashBackgroundTop,
-                AppTheme.splashArc.withOpacity(0.2),
-                AppTheme.splashArc,
-              ],
-              stops: const [0.0, 0.3, 0.6, 0.85, 1.0],
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: AppTheme.splashArc.withOpacity(0.25),
-                blurRadius: 8,
-                spreadRadius: 1,
-              ),
-            ],
-          ),
-          child: Center(
-            child: Container(
-              width: 22,
-              height: 22,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: AppTheme.splashArc.withOpacity(0.10),
-                    blurRadius: 4,
-                  ),
-                ],
-              ),
-            ),
-          ),
         ),
       ),
     );
