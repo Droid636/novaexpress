@@ -101,7 +101,6 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   Widget build(BuildContext context) {
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
-    // --- LÓGICA DE COLORES BASADA EN TU LOGIN ---
     final backgroundStartColor = isDarkMode
         ? AppTheme.navBackground
         : AppTheme.splashBackgroundBottom;
@@ -322,7 +321,6 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       obscureText: obscureText,
       style: TextStyle(color: textColor),
       decoration: InputDecoration(
-        // ✅ PLACEHOLDER
         hintText: label,
         hintStyle: TextStyle(
           color: hintColor,
