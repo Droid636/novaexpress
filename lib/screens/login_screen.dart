@@ -111,8 +111,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
     final textColor = isDarkMode ? Colors.white : AppTheme.categoryChipText;
 
-    final hintColor = isDarkMode ? AppTheme.navUnselected : AppTheme.searchHint;
-
     final primaryButtonColor = AppTheme.navSelected;
     final secondaryButtonColor = isDarkMode
         ? AppTheme.navUnselected
@@ -155,20 +153,35 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   key: _formKey,
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Icon(Icons.person, size: 80, color: iconColor),
+                      Center(
+                        child: Icon(Icons.person, size: 80, color: iconColor),
+                      ),
                       const SizedBox(height: 16),
-                      Text(
-                        'Iniciar Sesión',
-                        style: TextStyle(
-                          fontSize: 28,
-                          fontWeight: FontWeight.bold,
-                          color: textColor,
+                      Center(
+                        child: Text(
+                          'Iniciar Sesión',
+                          style: TextStyle(
+                            fontSize: 28,
+                            fontWeight: FontWeight.bold,
+                            color: textColor,
+                          ),
                         ),
                       ),
                       const SizedBox(height: 32),
 
-                      /// EMAIL
+                      /// LABEL CORREO (ESTÁTICO)
+                      Text(
+                        'Correo',
+                        style: TextStyle(
+                          color: Theme.of(context).brightness == Brightness.dark
+                              ? AppTheme.navUnselected
+                              : AppTheme.categoryChipText,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
                       TextFormField(
                         controller: _emailController,
                         validator: Validators.email,
@@ -176,9 +189,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         style: TextStyle(color: textColor),
                         decoration: _inputDecoration(
                           context,
-                          label: 'Correo',
                           hint: 'ejemplo@correo.com',
-                          hintColor: hintColor,
                           borderColor: cardBorderColor,
                           primaryColor: primaryButtonColor,
                         ),
@@ -186,7 +197,17 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
                       const SizedBox(height: 16),
 
-                      /// PASSWORD
+                      /// LABEL CONTRASEÑA (ESTÁTICO)
+                      Text(
+                        'Contraseña',
+                        style: TextStyle(
+                          color: Theme.of(context).brightness == Brightness.dark
+                              ? AppTheme.navUnselected
+                              : AppTheme.categoryChipText,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
                       TextFormField(
                         controller: _passwordController,
                         validator: Validators.password,
@@ -194,9 +215,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         style: TextStyle(color: textColor),
                         decoration: _inputDecoration(
                           context,
-                          label: 'Contraseña',
                           hint: '********',
-                          hintColor: hintColor,
                           borderColor: cardBorderColor,
                           primaryColor: primaryButtonColor,
                           suffix: IconButton(
@@ -215,7 +234,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       const SizedBox(height: 24),
 
                       _isLoading
-                          ? CircularProgressIndicator(color: primaryButtonColor)
+                          ? Center(
+                              child: CircularProgressIndicator(
+                                color: primaryButtonColor,
+                              ),
+                            )
                           : SizedBox(
                               width: double.infinity,
                               height: 50,
@@ -241,29 +264,32 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
                       const SizedBox(height: 16),
 
-                      TextButton(
-                        onPressed: _guestLogin,
-                        child: Text(
-                          'Entrar como invitado',
-                          style: TextStyle(
-                            color: secondaryButtonColor,
-                            fontSize: 16,
+                      Center(
+                        child: TextButton(
+                          onPressed: _guestLogin,
+                          child: Text(
+                            'Entrar como invitado',
+                            style: TextStyle(
+                              color: secondaryButtonColor,
+                              fontSize: 16,
+                            ),
                           ),
                         ),
                       ),
 
-                      /// CREAR CUENTA
-                      TextButton(
-                        onPressed: () {
-                          Navigator.of(
-                            context,
-                          ).pushReplacementNamed('/register');
-                        },
-                        child: Text(
-                          'Crear cuenta nueva',
-                          style: TextStyle(
-                            color: secondaryButtonColor,
-                            fontSize: 16,
+                      Center(
+                        child: TextButton(
+                          onPressed: () {
+                            Navigator.of(
+                              context,
+                            ).pushReplacementNamed('/register');
+                          },
+                          child: Text(
+                            'Crear cuenta nueva',
+                            style: TextStyle(
+                              color: secondaryButtonColor,
+                              fontSize: 16,
+                            ),
                           ),
                         ),
                       ),
@@ -280,18 +306,18 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   InputDecoration _inputDecoration(
     BuildContext context, {
-    required String label,
     required String hint,
-    required Color hintColor,
     required Color borderColor,
     required Color primaryColor,
     Widget? suffix,
   }) {
     return InputDecoration(
-      labelText: label,
       hintText: hint,
-      labelStyle: TextStyle(color: hintColor),
-      hintStyle: TextStyle(color: hintColor.withOpacity(0.7)),
+      hintStyle: TextStyle(
+        color: Theme.of(context).brightness == Brightness.dark
+            ? AppTheme.navUnselected
+            : AppTheme.searchHint,
+      ),
       filled: true,
       fillColor: Theme.of(context).brightness == Brightness.dark
           ? AppTheme.navBackground.withOpacity(0.8)
