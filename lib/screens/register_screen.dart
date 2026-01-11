@@ -322,14 +322,22 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       obscureText: obscureText,
       style: TextStyle(color: textColor),
       decoration: InputDecoration(
-        labelText: label,
-        labelStyle: TextStyle(color: hintColor),
+        // ✅ PLACEHOLDER
+        hintText: label,
+        hintStyle: TextStyle(
+          color: hintColor,
+          fontSize: 14,
+          fontWeight: FontWeight.w500,
+        ),
+
         filled: true,
         fillColor: isDarkMode ? Colors.white.withOpacity(0.1) : Colors.white,
+
         contentPadding: const EdgeInsets.symmetric(
           vertical: 16,
           horizontal: 20,
         ),
+
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
           borderSide: BorderSide(
