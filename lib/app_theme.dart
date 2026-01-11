@@ -32,7 +32,8 @@ class AppTheme {
   static const Color searchIconBg = navSelected;
   static const Color searchIconColor = Colors.white;
   static const Color searchHint = Color(0xFFB0B8C1);
-
+  static const Color deleteButton = Color(0xFFD32F2F);
+  static const Color deleteButtonText = Colors.white;
   // Chips de categorías
   static const Color categoryChipBackground = Color(0xFFFDFDFD);
   static const Color categoryChipBorder = Color(0xFFE0E3EB);

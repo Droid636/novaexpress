@@ -159,8 +159,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                           icon: const Icon(Icons.delete_forever),
                           label: const Text('Eliminar cuenta'),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.red,
-                            foregroundColor: Colors.white,
+                            backgroundColor: AppTheme.deleteButton,
+                            foregroundColor: AppTheme.deleteButtonText,
                           ),
                           onPressed: () => _confirmDeleteAccount(context, user),
                         ),
@@ -220,7 +220,10 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   child: const Text('Cancelar'),
                 ),
                 ElevatedButton(
-                  style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.deleteButton,
+                    foregroundColor: AppTheme.deleteButtonText,
+                  ),
                   onPressed: loading
                       ? null
                       : () async {
@@ -261,7 +264,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
                             await user.delete();
 
-                            // Limpiar SharedPreferences
                             final prefs = await SharedPreferences.getInstance();
                             await prefs.remove('isLoggedIn');
                             await prefs.remove('isGuest');

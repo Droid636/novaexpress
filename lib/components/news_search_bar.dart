@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../app_theme.dart';
 
-class NewsSearchBar extends StatelessWidget {
+class NewsSearchBar extends StatefulWidget {
   final ValueChanged<String> onSearch;
   final ValueChanged<String>? onChanged;
   final String? initialValue;
@@ -14,18 +14,33 @@ class NewsSearchBar extends StatelessWidget {
   });
 
   @override
+  State<NewsSearchBar> createState() => _NewsSearchBarState();
+}
+
+class _NewsSearchBarState extends State<NewsSearchBar> {
+  late final TextEditingController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController(text: widget.initialValue);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final controller = TextEditingController(text: initialValue);
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Padding(
       padding: const EdgeInsets.all(12.0),
       child: Container(
         decoration: BoxDecoration(
-          color: isDark
-              ? AppTheme
-                    .navBackground 
-              : Colors.white,
+          color: isDark ? AppTheme.navBackground : Colors.white,
           borderRadius: BorderRadius.circular(30),
           border: Border.all(
             color: isDark
@@ -38,7 +53,7 @@ class NewsSearchBar extends StatelessWidget {
           children: [
             Expanded(
               child: TextField(
-                controller: controller,
+                controller: _controller,
                 decoration: InputDecoration(
                   hintText: 'Buscar noticias...',
                   hintStyle: TextStyle(
@@ -50,8 +65,8 @@ class NewsSearchBar extends StatelessWidget {
                   contentPadding: const EdgeInsets.symmetric(horizontal: 20),
                 ),
                 textInputAction: TextInputAction.search,
-                onSubmitted: onSearch,
-                onChanged: onChanged,
+                onSubmitted: widget.onSearch,
+                onChanged: widget.onChanged,
                 style: TextStyle(
                   fontSize: 16,
                   color: isDark ? Colors.white : AppTheme.bookmarksTitle,
@@ -59,7 +74,7 @@ class NewsSearchBar extends StatelessWidget {
               ),
             ),
 
-            
+            /// 🔍 BOTÓN BUSCAR
             Container(
               height: 48,
               width: 48,
@@ -72,7 +87,7 @@ class NewsSearchBar extends StatelessWidget {
               ),
               child: IconButton(
                 icon: const Icon(Icons.search, color: AppTheme.searchIconColor),
-                onPressed: () => onSearch(controller.text),
+                onPressed: () => widget.onSearch(_controller.text),
                 splashRadius: 24,
               ),
             ),
